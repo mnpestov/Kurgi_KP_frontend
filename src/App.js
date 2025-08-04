@@ -367,8 +367,6 @@ function App() {
   // Функция экспорта в PDF
   const exportPDF = useCallback(async () => {
     addToDb(state.formData, state.listsKp)
-    localStorage.setItem(`${state.kpNumber}formData`, JSON.stringify(state.formData))
-    localStorage.setItem(`${state.kpNumber}listsKp`, JSON.stringify(state.listsKp))
     setIsNewKp(false)
     const pdf = new jsPDF("landscape", "mm", "a4");
     const lists = document.querySelectorAll(".list");
