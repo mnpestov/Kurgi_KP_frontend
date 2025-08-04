@@ -1,0 +1,15 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.35rem; /* 5px */
+  min-width: 900px;
+}
+
+.preview {
+  box-sizing: border-box;
+  /* padding: 1.875rem; 30px */
+  padding: 30px;
+  background-color: lightgrey;
+  overflow-x: auto; /* Предотвращение горизонтальной прокрутки */
+}

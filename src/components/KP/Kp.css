@@ -1,0 +1,148 @@
+.list__container {
+    display: flex;
+    flex-direction: column;
+}
+
+.list__logo {
+    width: calc(0.6 * 275.328px);
+}
+
+.list__title {
+    margin: 0;
+    padding: 0;
+    font-family: 'arial';
+    font-size: 24.36px;
+    letter-spacing: 1px;
+}
+
+.list__table {
+    gap: 9.936px;
+    display: flex;
+    flex-direction: column;
+    border-spacing: 19.872px;
+}
+
+.list__subtitle-container {
+    font-family: arial;
+    font-weight: 400;
+    font-size: calc(0.0165 * 864px);
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin: 0;
+    justify-self: start;
+}
+
+.list__subtitle_time {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.list__subtitle_text {
+    font-weight: bold;
+}
+
+.table__column {
+    font-family: arial;
+    font-weight: 400;
+    font-size: calc(0.0188 * 864px);
+}
+
+.table__titles {
+    vertical-align: bottom;
+    border-bottom: 1px solid black;
+    padding-bottom: 9px;
+    margin-bottom: 11px;
+    align-items: end;
+}
+
+.table__row {
+    display: grid;
+    grid-template-columns: 50% repeat(3, 1fr);
+    justify-items: end;
+    align-items: end;
+    transition: background-color 0.3s ease;
+}
+
+.table__title {
+    font-family: arial;
+    font-weight: 400;
+    font-size: calc(0.0188 * 864px);
+}
+
+.table__line-container {
+    display: flex;
+    /* gap: 30px; */
+    /* align-items: end; */
+    justify-self: start;
+}
+
+.table__line {
+    font-family: arial;
+    font-weight: 600;
+    font-size: calc(0.0165 * 864px);
+}
+
+.tabel__line_product {
+    font-size: calc(0.021 * 864px);
+}
+
+.tabel__line_composition-of-product {
+    font-weight: 400;
+}
+
+.list__total {
+    min-width: 329px;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    justify-self: unset;
+    font-size: calc(0.01765 * 864px);
+    border-top: 1px solid black;
+    padding-top: 7px;
+    box-sizing: border-box;
+}
+
+.table__subtitle {
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    font-family: arial;
+    font-weight: 400;
+    font-size: calc(0.0165 * 864px);
+    align-items: end;
+}
+
+.list__totla-cost {
+    font-weight: 600;
+}
+
+.button__list_delete {
+    min-width: 144px;
+}
+
+.add-button {
+    min-width: 144px;
+    background-color: #008CBA;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    transition: background-color 0.3s ease;
+    margin-left: 1rem;
+}
+
+
+/* @media (max-width: 768px) {
+    .list__table {
+        gap: 5px;
+    }
+} */

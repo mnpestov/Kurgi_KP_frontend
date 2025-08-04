@@ -1,0 +1,72 @@
+.row-wrapper {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.row-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 150px;
+    z-index: 1;
+}
+
+.row-button {
+    padding: 0 12px;
+    border: none;
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.edit-button {
+    background-color: #3498db;
+    width: 75px;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+    width: 75px;
+}
+
+.table__row-container {
+    transition: transform 0.3s ease;
+    background-color: #fff;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.save-button {
+    background-color: #4CAF50;
+    height: 100%;
+    margin: 0;
+}
+
+.save-button__container {
+    height: 100%;
+}
+
+.row_count {
+    font-family: arial;
+    font-size: 16.2432px;
+    font-weight: 400;
+    text-align: end;
+}
+
+.row_count-input {
+    font-family: arial;
+    text-align: end;
+}
+
+.row_count-input-product {
+    max-width: 31%;
+}

@@ -1,0 +1,306 @@
+.form__search {
+  display: flex;
+  margin: 0.625rem;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.search__search-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1.5px solid rgba(170, 170, 170, 0.2);
+}
+
+.search__input {
+  margin: 0;
+  margin-left: 22px;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  line-height: 18px;
+  color: black;
+  outline: none;
+  background: none;
+  background-repeat: no-repeat;
+  border: none;
+  width: 90%;
+}
+
+.search__btn {
+  width: 34px;
+  height: 34px;
+
+  margin: 6px;
+  padding: 0;
+
+  background-image: url(../../images/find.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: #4285F4;
+  border: none;
+  border-radius: 48px;
+
+  cursor: pointer;
+
+  transition: opacity 0.5s ease;
+}
+
+.search__btn:hover {
+  opacity: 0.7;
+}
+
+.search__btn_in-localStorage{
+  background-color: #008CBA;
+  /* Синий */
+  margin-right: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+.search__btn_in-localStorage:hover {
+  opacity: 0.7;
+}
+
+.form__title {
+  margin-bottom: 0.5rem;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  /* 20px */
+}
+
+.label {
+  margin: 0.25rem 0;
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  /* 16px */
+  color: gray;
+}
+
+.inputTime {
+  display: flex;
+  gap: 5px;
+  align-items: end;
+}
+
+.form__details {
+  display: flex;
+  gap: 2.5rem;
+  /* 40px */
+  margin: 0.625rem;
+  /* 10px */
+  flex-wrap: wrap;
+}
+
+.form__detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 17.36vw;
+}
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form__products {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0.625rem;
+}
+
+.form__row {
+  width: 100%;
+  overflow-x: auto;
+  /* Позволяет таблице прокручиваться по горизонтали на маленьких экранах */
+}
+
+.form__row table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.form__row th,
+.form__row td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 0.875rem;
+}
+
+.input,
+.form__select {
+  width: 100%;
+  padding: 0.375rem;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+}
+
+.add-product-button,
+.save-button,
+.download-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.add-product-button {
+  background-color: #008CBA;
+  /* Синий */
+  margin-right: 1rem;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  /* Зелёный */
+}
+
+.download-button {
+  background-color: #f44336;
+  /* Красный */
+  margin-top: 2rem;
+}
+
+.download-button:hover {
+  background-color: #da190b;
+}
+.download-button:disabled {
+  background-color: #656363;
+}
+
+.add-product-button:hover {
+  background-color: #007B9E;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+  .form__details {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .radio-group {
+    flex-direction: column;
+  }
+
+  .form__row table,
+  .form__row th,
+  .form__row td {
+    font-size: 0.875rem;
+    /* 14px */
+  }
+
+  .add-product-button,
+  .save-button,
+  .download-button {
+    width: 100%;
+    margin-right: 0;
+    padding: 0.75rem 1rem;
+  }
+
+  .add-product-button,
+  .save-button,
+  .download-button {
+    font-size: 1rem;
+  }
+}
+
+/* Медиазапрос для экранов до 440px */
+@media (max-width: 440px) {
+  .form__details {
+    gap: 1rem;
+    /* Уменьшаем промежуток между блоками */
+  }
+
+  .form__detail {
+    min-width: 100%;
+    /* Блоки занимают всю ширину */
+  }
+
+  .form__row table {
+    min-width: 600px;
+    /* Уменьшаем минимальную ширину таблицы */
+  }
+
+  .form__row th,
+  .form__row td {
+    padding: 0.3rem;
+    /* Уменьшаем отступы */
+    font-size: 0.75rem;
+    /* 12px */
+  }
+
+  .form__row-container {
+    padding: 0.5rem;
+  }
+
+  .form__title {
+    font-size: 1rem;
+    /* 16px */
+  }
+
+  .label {
+    font-size: 0.875rem;
+    /* 14px */
+  }
+
+  .input,
+  .form__select {
+    padding: 0.25rem;
+    font-size: 0.875rem;
+    /* 14px */
+  }
+
+  .form__buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-product-button,
+  .save-button,
+  .download-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    /* 14px */
+  }
+
+  .add-product-button,
+  .save-button,
+  .download-button {
+    margin-right: 0;
+  }
+
+  .add-product-button {
+    margin-bottom: 0.5rem;
+  }
+
+  .download-button {
+    margin-top: 1rem;
+  }
+
+}
