@@ -12,14 +12,14 @@ function FormRow({
   return (
     <tr className="form__row-column">
       <td className="form__row-column-name">
-        <input 
-          className="input" 
-          type="text" 
-          id={id} 
-          placeholder="Наименование товара" 
-          name="product" 
+        <input
+          className="input"
+          type="text"
+          id={id}
+          placeholder="Наименование товара"
+          name="product"
           // onChange={handleInputChange} 
-          autoComplete="off" 
+          autoComplete="off"
           aria-label={`Наименование товара ${number}`}
           value={productData.product}
           required
@@ -27,14 +27,14 @@ function FormRow({
         />
       </td>
       <td className="form__row-column-name">
-        <input 
-          className="input" 
-          type="text" 
-          id={id} 
-          placeholder="Описание/состав товара" 
-          name="composition" 
+        <input
+          className="input"
+          type="text"
+          id={id}
+          placeholder="Описание/состав товара"
+          name="composition"
           // onChange={handleInputChange} 
-          autoComplete="off" 
+          autoComplete="off"
           aria-label={`Описание товара ${number}`}
           value={productData.composition}
           required
@@ -42,14 +42,14 @@ function FormRow({
         />
       </td>
       <td className="form__row-column-name">
-        <input 
-          className="input" 
-          type="number" 
-          id={id} 
-          placeholder="Вес товара" 
-          name="productWeight" 
+        <input
+          className="input"
+          type="number"
+          id={id}
+          placeholder="Вес товара"
+          name="productWeight"
           // onChange={handleInputChange} 
-          autoComplete="off" 
+          autoComplete="off"
           aria-label={`Вес товара ${number}`}
           min="0"
           value={productData.productWeight}
@@ -57,10 +57,10 @@ function FormRow({
         />
       </td>
       <td className="form__row-column-name">
-        <select 
-          className="form__select" 
-          name="typeOfProduct" 
-          id={id} 
+        <select
+          className="form__select"
+          name="typeOfProduct"
+          id={id}
           // onChange={handleInputChange}
           aria-label={`Тип товара ${number}`}
           value={productData.typeOfProduct}
@@ -74,14 +74,14 @@ function FormRow({
         </select>
       </td>
       <td className="form__row-column-name">
-        <input 
-          className="input" 
-          type="number" 
-          id={id} 
-          placeholder="Количество товара" 
-          name="countOfProduct" 
+        <input
+          className="input"
+          type="number"
+          id={id}
+          placeholder="Количество товара"
+          name="countOfProduct"
           // onChange={handleInputChange} 
-          autoComplete="off" 
+          autoComplete="off"
           aria-label={`Количество товара ${number}`}
           min="0"
           value={productData.countOfProduct}
@@ -90,14 +90,14 @@ function FormRow({
         />
       </td>
       <td className="form__row-column-name">
-        <input 
-          className="input" 
-          type="number" 
-          id={id} 
-          placeholder="Стоимость товара" 
-          name="priceOfProduct" 
+        <input
+          className="input"
+          type="number"
+          id={id}
+          placeholder="Стоимость товара"
+          name="priceOfProduct"
           // onChange={handleInputChange} 
-          autoComplete="off" 
+          autoComplete="off"
           aria-label={`Стоимость товара ${number}`}
           min="0"
           value={productData.priceOfProduct}

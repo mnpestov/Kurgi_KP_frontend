@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import './Row.css';
 
-function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, dispatch }) {
+function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch }) {
     const { composition } = data;
     const [translateX, setTranslateX] = useState(0);
     const [startX, setStartX] = useState(0);
@@ -133,8 +133,14 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                 </p>
                             </td>
                             <td className="row_count">{editedData.countOfProduct || ''}</td>
-                            <td className="row_count">{editedData.priceOfProduct || ''}</td>
-                            <td className="row_count">{totalCostOfProduct || ''}</td>
+                            {!isCompact && (
+                                <>
+                                    <td className="row_count">{editedData.priceOfProduct || ''}</td>
+                                    <td className="row_count">{totalCostOfProduct || ''}</td>
+                                </>
+                            )}
+                            {/* <td className="row_count">{editedData.priceOfProduct || ''}</td>
+                            <td className="row_count">{totalCostOfProduct || ''}</td> */}
                         </>
                     )}
                 </tr>

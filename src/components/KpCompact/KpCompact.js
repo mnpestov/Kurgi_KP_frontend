@@ -1,19 +1,15 @@
-import React, { useState } from "react";
-import './Kp.css';
+import React from "react";
+import './KpCompact.css';
 import logo from '../../images/logo.png';
 import Row from '../Row/Row';
-import ProductPopup from '../ProductPopup/ProductPopup';
 
-function Kp({
+function KpCompact({
     startEvent,
     endEvent,
     eventPlace,
     countOfPerson,
     list,
     deleteRow,
-    id,
-    deleteList,
-    GetPrice,
     listTitle,
     startTimeStartEvent,
     endTimeStartEvent,
@@ -22,26 +18,12 @@ function Kp({
     deleteRowFromDb,
     updateRowInDb,
     isNewKp,
-    addRowOnList,
+    isCompact,
     dispatch
 }) {
-    const [showPopup, setShowPopup] = useState(false);
-    const totalCost = list.rows.map((item) => {
-        return item.countOfProduct * item.priceOfProduct;
-    }).reduce((partialSum, a) => partialSum + a, 0);
-
-    const handleDeleteList = () => {
-        deleteList(id);
-    };
-
-    const handleAddProduct = (newObj) => {
-        newObj.productId =Date.now()
-        addRowOnList(newObj, list.id) 
-    }
-
     return (
         <>
-            <div className="list">
+            <div className="listCompact">
                 <div className="list__container">
                     <img className="list__logo" src={logo} alt="logo" />
                     <h2 className="list__title">{listTitle}</h2>
@@ -61,36 +43,16 @@ function Kp({
                                     </div>
                                 </th>
                                 <th className="table__title">Количество, шт</th>
-                                <th className="table__title">Стоимость</th>
-                                <th className="table__title">Цена, руб</th>
                             </tr>
                         </thead>
                         {list.rows.map((item, index) => (
-                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} dispatch={dispatch} />
+                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} isCompact={isCompact} dispatch={dispatch} />
                         ))}
                     </table>
                 </div>
-                <div className="table__subtitle">
-                    <div className="footer">
-                        <div className="list__footnotes">
-                            <p className="list__footnote">*В стоимость включены все расходники.</p>
-                        </div>
-                        <div className="list__total">
-                            <p className="list__totla-cost">{`Итоговая сумма: ${GetPrice(parseInt(totalCost))}`}</p>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <button type="button" className="list-button button__list_delete remove-button" onClick={handleDeleteList}>Удалить лист</button>
-            <button type="button" onClick={() => setShowPopup(true)} className="list-button button__list_delete add-button">Добавить товар на лист</button>
-            {showPopup && (
-                <ProductPopup
-                    onClose={() => setShowPopup(false)} // Закрытие popup
-                    onSave={handleAddProduct} // Передаем функцию для сохранения данных
-                />
-            )}
         </>
     );
 }
 
-export default Kp;
+export default KpCompact;

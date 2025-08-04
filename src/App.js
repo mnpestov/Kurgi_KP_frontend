@@ -1,17 +1,11 @@
 import './App.css';
-import React, { useReducer, useCallback, Suspense, lazy, useState, useEffect } from "react";
-// import {
-//   BrowserRouter as Router,
-//   Routes,
-//   Route,
-//   useNavigate,
-//   useLocation
-// } from "react-router-dom";
+import React, { useReducer, useCallback, Suspense, lazy, useState, useEffect, useRef } from "react";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Form from './components/Form/Form';
 import Header from './components/Header/Header';
 import Kp from './components/KP/Kp';
+import KpCompact from './components/KpCompact/KpCompact';
 import PavelPhoto from './images/PavelPhoto.png';
 import PeterPhoto from './images/PeterPhoto.jpg';
 import { MainApi } from './utils/MainApi'
@@ -25,31 +19,7 @@ function App() {
   const [updetedRows, setUpdatedRows] = useState([])
 
   const initialState = {
-    formData: {
-      // id: '',
-      // managerName: 'Павел Кург',
-      // managerJobTitle: 'Руководитель проекта',
-      // managerEmail: 'kurgi-bar@yandex.ru',
-      // managerTel: '+7 925 516-31-16',
-      // managerPhoto: PavelPhoto,
-      // kpNumber: '',
-      // kpDate: new Date().toISOString().split('T')[0],
-      // contractNumber: '',
-      // contractDate: new Date().toISOString().split('T')[0],
-      // startEvent: new Date().toISOString().split('T')[0],
-      // endEvent: new Date().toISOString().split('T')[0],
-      // startTime: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // endTime: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // startTimeStartEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // endTimeStartEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // startTimeEndEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // endTimeEndEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      // eventPlace: '',
-      // countOfPerson: '',
-      // logisticsCost: 0,
-      // isWithinMkad: null,
-      // listTitle: '',
-    },
+    formData: {},
     listsKp: [],
   };
   const getEmptyFormData = () => ({
@@ -76,7 +46,7 @@ function App() {
   });
 
 
-
+  const compactPdfRef = useRef(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { formData, listsKp } = state;
 
@@ -152,47 +122,27 @@ function App() {
     }
   }
 
-  // useEffect(() => {
-  //   const fetchLastKpNumber = async () => {
-  //     try {
-  //       const lastKpNumber = await MainApi.getLastKpNumber();
-  //       if (lastKpNumber && lastKpNumber !== formData.kpNumber) {
-  //         dispatch({
-  //           type: 'UPDATE_FORM_DATA',
-  //           payload: { kpNumber: parseInt(lastKpNumber) + 1 }
-  //         });
-  //       }
-  //     } catch (err) {
-  //       console.log('Ошибка: ' + err);
-  //     }
-  //   };
-
-  //   if (isNewKp) {
-  //     fetchLastKpNumber();
-  //   }
-  // }, [isNewKp]);
-
   useEffect(() => {
-  const fetchLastKpNumber = async () => {
-    try {
-      const lastKpNumber = await MainApi.getLastKpNumber();
+    const fetchLastKpNumber = async () => {
+      try {
+        const lastKpNumber = await MainApi.getLastKpNumber();
 
-      const nextNumber = lastKpNumber ? parseInt(lastKpNumber) + 1 : 467;
+        const nextNumber = lastKpNumber ? parseInt(lastKpNumber) + 1 : 467;
 
-      dispatch({
-        type: 'UPDATE_FORM_DATA',
-        payload: { kpNumber: nextNumber }
-      });
+        dispatch({
+          type: 'UPDATE_FORM_DATA',
+          payload: { kpNumber: nextNumber }
+        });
 
-    } catch (err) {
-      console.log('Ошибка: ' + err);
+      } catch (err) {
+        console.log('Ошибка: ' + err);
+      }
+    };
+
+    if (isNewKp) {
+      fetchLastKpNumber();
     }
-  };
-
-  if (isNewKp) {
-    fetchLastKpNumber();
-  }
-}, [isNewKp]);
+  }, [isNewKp]);
 
 
   // Форматирование даты
@@ -324,13 +274,7 @@ function App() {
     }
   };
 
-
-
   const searchKp = async (kpNumber) => {
-    // const curentKp = { formData: JSON.parse(localStorage.getItem(`${state.kpNumber}+formData`)), listsKp: JSON.parse(localStorage.getItem(`${state.kpNumber}+listsKp`)) }
-
-    // updateCurrentKp(curentKp)
-
     try {
       const curentKp = await MainApi.getKp(kpNumber);
       updateCurrentKp(curentKp);
@@ -438,6 +382,35 @@ function App() {
     localStorage.setItem(`${state.kpNumber}formData`, JSON.stringify(state.formData))
     localStorage.setItem(`${state.kpNumber}listsKp`, JSON.stringify(state.listsKp))
     setIsNewKp(false)
+    // === Второй PDF (без цен) ===
+    const compactPdf = new jsPDF("landscape", "mm", "a4");
+    const listsCompact = document.querySelectorAll(".listCompact");
+
+    for (const [index, list] of listsCompact.entries()) {
+      const canvas = await html2canvas(list, {
+        scale: 2,
+        // useCORS: true, // если логотипы или изображения грузятся по URL
+        onclone: (clonedDoc) => {
+          const clonedList = clonedDoc.querySelectorAll(".listCompact")[index];
+          if (clonedList) {
+            clonedList.style.visibility = "visible";
+            clonedList.style.position = "static";
+            clonedList.style.zIndex = "auto";
+          }
+        }
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (index !== 0) compactPdf.addPage();
+      compactPdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    }
+
+    compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
+
+
   }, [state.formData, state.listsKp]);
 
   // Функции добавления и удаления строк/списков
@@ -478,14 +451,12 @@ function App() {
     } else {
       // Добавляем строку локально (новый КП ещё не сохранён)
       const tempRow = { ...rowWithListId, id: Date.now() };
-
       dispatch({
         type: 'ADD_ROW_ON_LIST',
         payload: { row: tempRow, listId }
       });
     }
   };
-
 
   const deleteKp = async () => {
     if (isNewKp) {
@@ -497,30 +468,24 @@ function App() {
       }
       return;
     }
-
     if (!formData.id) {
       alert('Ошибка: отсутствует ID КП для удаления.');
       return;
     }
-
     const confirmDelete = window.confirm('Удалить сохранённый КП и все связанные данные?');
     if (!confirmDelete) return;
-
     try {
       await MainApi.deleteKp(formData.id);
       alert('КП удалён из базы данных.');
-
       // Очистка UI
       dispatch({ type: 'UPDATE_FORM_DATA', payload: getEmptyFormData() });
       dispatch({ type: 'UPDATE_LISTS', payload: [] });
-
       setIsNewKp(true);
     } catch (err) {
       console.error('Ошибка при удалении КП:', err);
       alert('Не удалось удалить КП из базы данных.');
     }
   };
-
 
   return (
     <div className='page'>
@@ -569,6 +534,37 @@ function App() {
             dispatch={dispatch}
           />
         ))}
+        <div ref={compactPdfRef}
+          style={{
+            visibility: 'hidden',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: -9999
+          }}>
+          {listsKp.map((list, index) => (
+            <KpCompact
+              key={`compact-${index}`}
+              list={list}
+              deleteRow={deleteRow}
+              deleteRowFromDb={deleteRowFromDb}
+              updateRowInDb={updateRowInDb}
+              listTitle={formData.listTitle}
+              startEvent={formatDate(formData.startEvent)}
+              endEvent={formatDate(formData.endEvent)}
+              startTimeStartEvent={formData.startTimeStartEvent}
+              endTimeStartEvent={formData.endTimeStartEvent}
+              startTimeEndEvent={formData.startTimeEndEvent}
+              endTimeEndEvent={formData.endTimeEndEvent}
+              eventPlace={formData.eventPlace}
+              countOfPerson={formData.countOfPerson}
+              isNewKp={isNewKp}
+              dispatch={dispatch}
+              isCompact={true}
+            />
+          ))}
+        </div>
+
         <Suspense fallback={<div>Загрузка Footer...</div>}>
           <Footer
             lists={listsKp}
