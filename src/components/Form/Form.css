@@ -198,6 +198,10 @@
   background-color: #45a049;
 }
 
+input, textarea, select {
+  font-size: 16px;
+}
+
 @media (max-width: 768px) {
   .form__details {
     flex-direction: column;
@@ -211,7 +215,7 @@
   .form__row table,
   .form__row th,
   .form__row td {
-    font-size: 0.875rem;
+    font-size: 1rem;
     /* 14px */
   }
 
@@ -251,7 +255,7 @@
   .form__row td {
     padding: 0.3rem;
     /* Уменьшаем отступы */
-    font-size: 0.75rem;
+    font-size: 1rem;
     /* 12px */
   }
 
@@ -265,14 +269,14 @@
   }
 
   .label {
-    font-size: 0.875rem;
+    font-size: 1rem;
     /* 14px */
   }
 
   .input,
   .form__select {
     padding: 0.25rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
     /* 14px */
   }
 
