@@ -152,25 +152,47 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    const fetchLastKpNumber = async () => {
-      try {
-        const lastKpNumber = await MainApi.getLastKpNumber();
-        if (lastKpNumber && lastKpNumber !== formData.kpNumber) {
-          dispatch({
-            type: 'UPDATE_FORM_DATA',
-            payload: { kpNumber: parseInt(lastKpNumber) + 1 }
-          });
-        }
-      } catch (err) {
-        console.log('Ошибка: ' + err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchLastKpNumber = async () => {
+  //     try {
+  //       const lastKpNumber = await MainApi.getLastKpNumber();
+  //       if (lastKpNumber && lastKpNumber !== formData.kpNumber) {
+  //         dispatch({
+  //           type: 'UPDATE_FORM_DATA',
+  //           payload: { kpNumber: parseInt(lastKpNumber) + 1 }
+  //         });
+  //       }
+  //     } catch (err) {
+  //       console.log('Ошибка: ' + err);
+  //     }
+  //   };
 
-    if (isNewKp) {
-      fetchLastKpNumber();
+  //   if (isNewKp) {
+  //     fetchLastKpNumber();
+  //   }
+  // }, [isNewKp]);
+
+  useEffect(() => {
+  const fetchLastKpNumber = async () => {
+    try {
+      const lastKpNumber = await MainApi.getLastKpNumber();
+
+      const nextNumber = lastKpNumber ? parseInt(lastKpNumber) + 1 : 467;
+
+      dispatch({
+        type: 'UPDATE_FORM_DATA',
+        payload: { kpNumber: nextNumber }
+      });
+
+    } catch (err) {
+      console.log('Ошибка: ' + err);
     }
-  }, [isNewKp]);
+  };
+
+  if (isNewKp) {
+    fetchLastKpNumber();
+  }
+}, [isNewKp]);
 
 
   // Форматирование даты
