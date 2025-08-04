@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://mnpestov.github.io/kurgi_kp",
+  "homepage": ".",
   "dependencies": {
     "@react-pdf/renderer": "^3.4.4",
     "axios": "^1.7.2",
