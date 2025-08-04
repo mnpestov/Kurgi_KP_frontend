@@ -383,6 +383,38 @@ function App() {
     localStorage.setItem(`${state.kpNumber}listsKp`, JSON.stringify(state.listsKp))
     setIsNewKp(false)
     // === Второй PDF (без цен) ===
+    // const compactPdf = new jsPDF("landscape", "mm", "a4");
+    // const listsCompact = document.querySelectorAll(".listCompact");
+
+    // for (const [index, list] of listsCompact.entries()) {
+    //   const canvas = await html2canvas(list, {
+    //     scale: 2,
+    //     // useCORS: true, // если логотипы или изображения грузятся по URL
+    //     onclone: (clonedDoc) => {
+    //       const clonedList = clonedDoc.querySelectorAll(".listCompact")[index];
+    //       if (clonedList) {
+    //         clonedList.style.visibility = "visible";
+    //         clonedList.style.position = "static";
+    //         clonedList.style.zIndex = "auto";
+    //       }
+    //     }
+    //   });
+
+    //   const imgData = canvas.toDataURL("image/png");
+    //   const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
+    //   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    //   if (index !== 0) compactPdf.addPage();
+    //   compactPdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    // }
+
+    // compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
+
+
+  }, [state.formData, state.listsKp]);
+
+  const downloadSpec = useCallback(async () => {
+    // === Второй PDF (без цен) ===
     const compactPdf = new jsPDF("landscape", "mm", "a4");
     const listsCompact = document.querySelectorAll(".listCompact");
 
@@ -409,8 +441,6 @@ function App() {
     }
 
     compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
-
-
   }, [state.formData, state.listsKp]);
 
   // Функции добавления и удаления строк/списков
@@ -498,6 +528,7 @@ function App() {
         kpNumber={formData.kpNumber}
         deleteKp={deleteKp}
         formData={formData}
+        downloadSpec={downloadSpec}
       />
       <div className="preview">
         <Header

@@ -11,7 +11,8 @@ function Form({
   searchKp,
   kpNumber,
   formData,
-  deleteKp
+  deleteKp,
+  downloadSpec
 }) {
 
   const [showPopup, setShowPopup] = useState(false);
@@ -404,6 +405,7 @@ function Form({
         Удалить КП
       </button>
       <button type="button" onClick={downloadPDF} className="download-button">Скачать PDF</button>
+      <button type="button" onClick={downloadSpec} className="download-button">Скачать спецификацию</button>
     </div >
   );
 }
