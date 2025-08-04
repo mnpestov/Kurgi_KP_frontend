@@ -401,11 +401,13 @@ function Form({
           <button type="submit" className="save-button">Сохранить</button>
         </form>
       </fieldset >
-      <button type="button" onClick={deleteKp} className="download-button form__delete-kp-btn">
-        Удалить КП
-      </button>
-      <button type="button" onClick={downloadPDF} className="download-button">Скачать PDF</button>
-      <button type="button" onClick={downloadSpec} className="download-button">Скачать спецификацию</button>
+      <div>
+        <button type="button" onClick={deleteKp} className="download-button form__delete-kp-btn">
+          Удалить КП
+        </button>
+        <button type="button" onClick={downloadPDF} className="download-button">Скачать PDF</button>
+        <button type="button" onClick={downloadSpec} className="download-button">Скачать спецификацию</button>
+      </div>
     </div >
   );
 }
