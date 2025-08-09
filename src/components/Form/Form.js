@@ -7,7 +7,7 @@ import ProductPopup from "../ProductPopup/ProductPopup";
 import PavelPhoto from '../../images/PavelPhoto.png';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
 
-function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }) {
+function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, getProductWeightWithMeasure }) {
   // Локальное состояние для полей формы КП
 
   const [formData, setFormData] = useState({
@@ -520,7 +520,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
 
         <div className="form__table-container">
           {/* Заголовок таблицы */}
-          <div className="form__table-header">
+          {/* <div className="form__table-header">
             <div className="cell cell--name">Наименование</div>
             <div className="cell cell--composition">Состав</div>
             <div className="cell cell--weight">Вес</div>
@@ -529,7 +529,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
             <div className="cell cell--total">Цена Итого</div>
             <div className="cell cell--edit"></div>
             <div className="cell cell--delete"></div>
-          </div>
+          </div> */}
 
           {/* Ряды таблицы */}
           {products.map((prod) => (
@@ -538,6 +538,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
               productData={prod}
               handleRemoveProduct={handleRemoveProduct}
               handleEditProduct={handleEditProduct}
+              getProductWeightWithMeasure={getProductWeightWithMeasure}
             />
           ))}
           {errors._lists && (

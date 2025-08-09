@@ -14,9 +14,11 @@
 .form__section {
   margin-bottom: 1.5rem;
 }
+
 .form__input.error {
   border: 1px solid red !important;
-  border-radius: 4px; /* чтобы выглядело аккуратно */
+  border-radius: 4px;
+  /* чтобы выглядело аккуратно */
 }
 
 .form__section-title {
@@ -201,7 +203,11 @@
 
 @media (max-width: 768px) {
   .form__table-header {
-    display: none;
+    display: grid;
+    grid-template-columns:
+      minmax(220px, 2fr) minmax(280px, 3fr) 90px 90px 120px 120px 44px 44px;
+    background: #f6f7f9;
+    border: 1px solid #DDD;
     /* скрываем заголовок на мобильных :contentReference[oaicite:1]{index=1} */
   }
 }

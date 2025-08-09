@@ -24,7 +24,8 @@ function Kp({
     updateRowInDb,
     isNewKp,
     addRowOnList,
-    dispatch
+    dispatch,
+    getProductWeightWithMeasure
 }) {
     const [showPopup, setShowPopup] = useState(false);
     const totalCost = list.rows.map((item) => {
@@ -67,7 +68,7 @@ function Kp({
                             </tr>
                         </thead>
                         {list.rows.map((item, index) => (
-                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} dispatch={dispatch} />
+                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} dispatch={dispatch} getProductWeightWithMeasure={getProductWeightWithMeasure} />
                         ))}
                     </table>
                 </div>

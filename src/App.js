@@ -144,6 +144,11 @@ function App() {
     }
   }, [isNewKp]);
 
+  const getProductWeightWithMeasure = (productWeight, typeOfProduct) => {
+    if (!productWeight) return productWeight;
+    return typeOfProduct === 'eat' ? `${productWeight}гр` : `${productWeight}мл`;
+  };
+
   // Форматирование времени
   const formatTime = (timeString) => {
     if (!timeString) return '';
@@ -163,24 +168,24 @@ function App() {
     return isNaN(d) ? null : d.toISOString().slice(0, 10);
   };
   const toHHMM = (v) => {
-  if (!v) return null;
-  if (/^\d{2}:\d{2}$/.test(v)) return v; // уже в нормальном виде
-  if (/^\d{2}:\d{2}:\d{2}/.test(v)) return v.slice(0, 5); // обрезаем секунды
-  return v; // оставляем как есть
-};
+    if (!v) return null;
+    if (/^\d{2}:\d{2}$/.test(v)) return v; // уже в нормальном виде
+    if (/^\d{2}:\d{2}:\d{2}/.test(v)) return v.slice(0, 5); // обрезаем секунды
+    return v; // оставляем как есть
+  };
 
   // Нормализуем только поля-даты формы КП
-const normalizeKpPayload = (data) => ({
-  ...data,
-  kpDate: toISO(data.kpDate),
-  contractDate: toISO(data.contractDate),
-  startEvent: toISO(data.startEvent),
-  endEvent: toISO(data.endEvent),
-  startTimeStartEvent: toHHMM(data.startTimeStartEvent),
-  endTimeStartEvent: toHHMM(data.endTimeStartEvent),
-  startTimeEndEvent: toHHMM(data.startTimeEndEvent),
-  endTimeEndEvent: toHHMM(data.endTimeEndEvent),
-});
+  const normalizeKpPayload = (data) => ({
+    ...data,
+    kpDate: toISO(data.kpDate),
+    contractDate: toISO(data.contractDate),
+    startEvent: toISO(data.startEvent),
+    endEvent: toISO(data.endEvent),
+    startTimeStartEvent: toHHMM(data.startTimeStartEvent),
+    endTimeStartEvent: toHHMM(data.endTimeStartEvent),
+    startTimeEndEvent: toHHMM(data.startTimeEndEvent),
+    endTimeEndEvent: toHHMM(data.endTimeEndEvent),
+  });
 
   // Форматирование цены
   const GetPrice = useCallback((price) => {
@@ -371,37 +376,37 @@ const normalizeKpPayload = (data) => ({
   }, []);
 
   // Обработчик смены менеджера
-  const handleManagerChange = useCallback(({ target: { value } }) => {
-    const manager = value === 'true'
-      ? {
-        managerPhoto: PeterPhoto,
-        managerName: 'Петр Кург',
-        managerTel: '+7 926 966-88-71',
-        managerJobTitle: 'Руководитель проекта',
-        managerEmail: 'kurgi-bar@yandex.ru'
-      }
-      : {
-        managerPhoto: PavelPhoto,
-        managerName: 'Павел Кург',
-        managerTel: '+7 925 516-31-16',
-        managerJobTitle: 'Руководитель проекта',
-        managerEmail: 'kurgi-bar@yandex.ru'
-      };
-    dispatch({ type: 'UPDATE_FORM_DATA', payload: manager });
-  }, []);
+  // const handleManagerChange = useCallback(({ target: { value } }) => {
+  //   const manager = value === 'true'
+  //     ? {
+  //       managerPhoto: PeterPhoto,
+  //       managerName: 'Петр Кург',
+  //       managerTel: '+7 926 966-88-71',
+  //       managerJobTitle: 'Руководитель проекта',
+  //       managerEmail: 'kurgi-bar@yandex.ru'
+  //     }
+  //     : {
+  //       managerPhoto: PavelPhoto,
+  //       managerName: 'Павел Кург',
+  //       managerTel: '+7 925 516-31-16',
+  //       managerJobTitle: 'Руководитель проекта',
+  //       managerEmail: 'kurgi-bar@yandex.ru'
+  //     };
+  //   dispatch({ type: 'UPDATE_FORM_DATA', payload: manager });
+  // }, []);
 
   // Обработчик изменений полей формы
-  const handleChangeInput = useCallback(({ target: { value, name } }) => {
-    let data
-    if (name === 'countOfPerson') {
-      data = getDeclination(value)
-    } else if (name === 'isWithinMkad') {
-      data = value === "true"
-    } else {
-      data = value
-    }
-    dispatch({ type: 'UPDATE_FORM_DATA', payload: { [name]: data } });
-  }, [getDeclination]);
+  // const handleChangeInput = useCallback(({ target: { value, name } }) => {
+  //   let data
+  //   if (name === 'countOfPerson') {
+  //     data = getDeclination(value)
+  //   } else if (name === 'isWithinMkad') {
+  //     data = value === "true"
+  //   } else {
+  //     data = value
+  //   }
+  //   dispatch({ type: 'UPDATE_FORM_DATA', payload: { [name]: data } });
+  // }, [getDeclination]);
 
   // Функция экспорта в PDF
   const exportPDF = useCallback(async () => {
@@ -452,11 +457,11 @@ const normalizeKpPayload = (data) => ({
   }, [state.formData, state.listsKp]);
 
   // Функции добавления и удаления строк/списков
-  const addRowInPdf = useCallback((newObj) => {
-    console.log(newObj);
+  // const addRowInPdf = useCallback((newObj) => {
+  //   console.log(newObj);
 
-    dispatch({ type: 'ADD_ROW_IN_PDF', payload: newObj });
-  }, []);
+  //   dispatch({ type: 'ADD_ROW_IN_PDF', payload: newObj });
+  // }, []);
 
   const deleteRow = useCallback((listId, rowIndex) => {
     dispatch({ type: 'DELETE_ROW', payload: { listId, rowIndex } });
@@ -496,34 +501,34 @@ const normalizeKpPayload = (data) => ({
     }
   };
 
-  const deleteKp = async () => {
-    if (isNewKp) {
-      const confirmClear = window.confirm('КП ещё не сохранён. Очистить форму?');
-      if (confirmClear) {
-        dispatch({ type: 'UPDATE_FORM_DATA', payload: {} });
-        dispatch({ type: 'UPDATE_LISTS', payload: [] });
-        setIsNewKp(true);
-      }
-      return;
-    }
-    if (!formData.id) {
-      alert('Ошибка: отсутствует ID КП для удаления.');
-      return;
-    }
-    const confirmDelete = window.confirm('Удалить сохранённый КП и все связанные данные?');
-    if (!confirmDelete) return;
-    try {
-      await MainApi.deleteKp(formData.id);
-      alert('КП удалён из базы данных.');
-      // Очистка UI
-      dispatch({ type: 'UPDATE_FORM_DATA', payload: getEmptyFormData() });
-      dispatch({ type: 'UPDATE_LISTS', payload: [] });
-      setIsNewKp(true);
-    } catch (err) {
-      console.error('Ошибка при удалении КП:', err);
-      alert('Не удалось удалить КП из базы данных.');
-    }
-  };
+  // const deleteKp = async () => {
+  //   if (isNewKp) {
+  //     const confirmClear = window.confirm('КП ещё не сохранён. Очистить форму?');
+  //     if (confirmClear) {
+  //       dispatch({ type: 'UPDATE_FORM_DATA', payload: {} });
+  //       dispatch({ type: 'UPDATE_LISTS', payload: [] });
+  //       setIsNewKp(true);
+  //     }
+  //     return;
+  //   }
+  //   if (!formData.id) {
+  //     alert('Ошибка: отсутствует ID КП для удаления.');
+  //     return;
+  //   }
+  //   const confirmDelete = window.confirm('Удалить сохранённый КП и все связанные данные?');
+  //   if (!confirmDelete) return;
+  //   try {
+  //     await MainApi.deleteKp(formData.id);
+  //     alert('КП удалён из базы данных.');
+  //     // Очистка UI
+  //     dispatch({ type: 'UPDATE_FORM_DATA', payload: getEmptyFormData() });
+  //     dispatch({ type: 'UPDATE_LISTS', payload: [] });
+  //     setIsNewKp(true);
+  //   } catch (err) {
+  //     console.error('Ошибка при удалении КП:', err);
+  //     alert('Не удалось удалить КП из базы данных.');
+  //   }
+  // };
 
   return (
     <Routes>
@@ -549,6 +554,7 @@ const normalizeKpPayload = (data) => ({
             addList={(rows) => dispatch({ type: 'ADD_ROW_IN_PDF', payload: rows })}
             kpNumber={formData.kpNumber}
             formInfo={formData}
+            getProductWeightWithMeasure={getProductWeightWithMeasure}
           />
         }
       />
@@ -575,6 +581,7 @@ const normalizeKpPayload = (data) => ({
             GetPrice={GetPrice}
             downloadPDF={exportPDF}
             downloadSpec={downloadSpec}
+            getProductWeightWithMeasure={getProductWeightWithMeasure}
           />
         }
       />

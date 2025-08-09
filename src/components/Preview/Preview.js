@@ -23,7 +23,8 @@ function Preview({
     addRowOnList,
     GetPrice,
     downloadPDF,
-    downloadSpec
+    downloadSpec,
+    getProductWeightWithMeasure
 }) {
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
@@ -93,6 +94,7 @@ function Preview({
                         addRowOnList={addRowOnList}
                         dispatch={dispatch}
                         GetPrice={GetPrice}
+                        getProductWeightWithMeasure={getProductWeightWithMeasure}
                     />
                 ))}
 

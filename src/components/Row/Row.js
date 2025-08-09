@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import './Row.css';
 
-function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch }) {
+function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch, getProductWeightWithMeasure }) {
     const { composition } = data;
     const [translateX, setTranslateX] = useState(0);
     const [startX, setStartX] = useState(0);
@@ -51,11 +51,6 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setEditedData({ ...editedData, [name]: value });
-    };
-
-    const getProductWeightWithMeasure = (productWeight, typeOfProduct) => {
-        if (!productWeight) return productWeight;
-        return typeOfProduct === 'eat' ? `${productWeight}гр` : `${productWeight}мл`;
     };
 
     const productWeightWithMeasure = getProductWeightWithMeasure(editedData.productWeight, editedData.typeOfProduct);
