@@ -1,27 +1,27 @@
 import './App.css';
-import React, { useReducer, useCallback, Suspense, lazy, useState, useEffect, useRef } from "react";
+import React, { useReducer, useCallback, useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Form from './components/Form/Form';
-import Header from './components/Header/Header';
-import Kp from './components/KP/Kp';
-import KpCompact from './components/KpCompact/KpCompact';
 import PavelPhoto from './images/PavelPhoto.png';
 import PeterPhoto from './images/PeterPhoto.jpg';
 import { MainApi } from './utils/MainApi'
-
-// Ленивое загрузка компонента Footer
-const Footer = lazy(() => import('./components/Footer/Footer'));
+import Home from './components/Home/Home';
+import Preview from './components/Preview/Preview';
+import KpLoader from './components/KpLoader/KpLoader';
 
 
 function App() {
   const [isNewKp, setIsNewKp] = useState(true)
   const [updetedRows, setUpdatedRows] = useState([])
+  const navigate = useNavigate();
 
   const initialState = {
     formData: {},
     listsKp: [],
   };
+
   const getEmptyFormData = () => ({
     managerPhoto: PavelPhoto,
     managerName: 'Павел Кург',
@@ -45,8 +45,8 @@ function App() {
     listTitle: ''
   });
 
+  initialState.formData = getEmptyFormData()
 
-  const compactPdfRef = useRef(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { formData, listsKp } = state;
 
@@ -144,17 +144,43 @@ function App() {
     }
   }, [isNewKp]);
 
-
-  // Форматирование даты
-  const formatDate = useCallback((value, options = { year: 'numeric', month: 'numeric', day: 'numeric' }) => {
-    const enteredDate = new Date(value);
-    return enteredDate.toLocaleDateString('ru-RU', options);
-  }, []);
   // Форматирование времени
   const formatTime = (timeString) => {
     if (!timeString) return '';
     return timeString.slice(0, 5); // Оставляем только HH:MM
   };
+
+  // Приводим DD.MM.YYYY -> YYYY-MM-DD, всё остальное аккуратно пропускаем
+  const toISO = (v) => {
+    if (!v) return null;
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
+      const [d, m, y] = v.split('.');
+      return `${y}-${m}-${d}`;
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; // уже ISO
+    if (v === 'Invalid date') return null;
+    const d = new Date(v);
+    return isNaN(d) ? null : d.toISOString().slice(0, 10);
+  };
+  const toHHMM = (v) => {
+  if (!v) return null;
+  if (/^\d{2}:\d{2}$/.test(v)) return v; // уже в нормальном виде
+  if (/^\d{2}:\d{2}:\d{2}/.test(v)) return v.slice(0, 5); // обрезаем секунды
+  return v; // оставляем как есть
+};
+
+  // Нормализуем только поля-даты формы КП
+const normalizeKpPayload = (data) => ({
+  ...data,
+  kpDate: toISO(data.kpDate),
+  contractDate: toISO(data.contractDate),
+  startEvent: toISO(data.startEvent),
+  endEvent: toISO(data.endEvent),
+  startTimeStartEvent: toHHMM(data.startTimeStartEvent),
+  endTimeStartEvent: toHHMM(data.endTimeStartEvent),
+  startTimeEndEvent: toHHMM(data.startTimeEndEvent),
+  endTimeEndEvent: toHHMM(data.endTimeEndEvent),
+});
 
   // Форматирование цены
   const GetPrice = useCallback((price) => {
@@ -181,7 +207,11 @@ function App() {
   const addToDb = async (formData, listsKp, updatedRows = []) => {
     if (isNewKp) {
       try {
-        const kpRes = await MainApi.addKp(formData);
+        // 1) нормализуем шапку КП по датам
+        const kpPayload = normalizeKpPayload(formData);
+
+        // 2) создаём КП
+        const kpRes = await MainApi.addKp(kpPayload);
         console.log('KP создан:', kpRes);
 
         dispatch({
@@ -189,18 +219,22 @@ function App() {
           payload: { ...formData, id: kpRes.id },
         });
 
+        // 3) создаём списки и строки
         let updatedLists = [];
 
         if (listsKp?.length > 0 && kpRes.id) {
           updatedLists = await Promise.all(
             listsKp.map(async (list) => {
+              // В твоём API List берёт данные из шапки (formData), это ОК.
+              // Нормализуем даты и здесь на всякий случай.
               const listRes = await MainApi.addList({
                 ...formData,
-                kpId: kpRes.id
+                startEvent: toISO(formData.startEvent),
+                endEvent: toISO(formData.endEvent),
+                kpId: kpRes.id,
               });
 
               let createdRows = [];
-
               if (list.rows?.length > 0) {
                 createdRows = await Promise.all(
                   list.rows.map(row =>
@@ -223,6 +257,11 @@ function App() {
           payload: updatedLists,
         });
 
+        // 4) редирект на предпросмотр по номеру (у тебя просмотр грузит по kpNumber)
+        if (kpRes?.kpNumber) {
+          navigate(`/kp/${kpRes.kpNumber}`);
+        }
+
         setIsNewKp(false);
         console.log('✅ Все данные успешно записаны');
       } catch (err) {
@@ -230,6 +269,7 @@ function App() {
         throw err;
       }
     } else {
+      // Редактирование существующего КП: обновляем изменённые строки
       try {
         if (updatedRows?.length > 0) {
           await Promise.all(
@@ -243,6 +283,7 @@ function App() {
       }
     }
   };
+
 
   const deleteRowFromDb = async (rowId) => {
     try {
@@ -275,14 +316,12 @@ function App() {
   };
 
   const searchKp = async (kpNumber) => {
-    try {
-      const curentKp = await MainApi.getKp(kpNumber);
-      updateCurrentKp(curentKp);
-
-    } catch (err) {
-      console.log('Ошибка: ' + err);
-    }
+    const currentKp = await MainApi.getKp(kpNumber);
+    updateCurrentKp(currentKp);
+    // если не найдено, MainApi.getKp выбросит исключение, которое пойдет дальше
+    return currentKp;
   };
+
 
   const updateCurrentKp = useCallback((kpData) => {
     if (!kpData) return;
@@ -487,94 +526,59 @@ function App() {
   };
 
   return (
-    <div className='page'>
-      <Form
-        downloadPDF={exportPDF}
-        addRowInPdf={addRowInPdf}
-        handleManagerChange={handleManagerChange}
-        handleChangeInput={handleChangeInput}
-        searchKp={searchKp}
-        kpNumber={formData.kpNumber}
-        deleteKp={deleteKp}
-        formData={formData}
-        downloadSpec={downloadSpec}
+    <Routes>
+      {/* Главная страница */}
+      <Route
+        path="/"
+        element={
+          <Home
+            searchKp={searchKp}
+            dispatch={dispatch}
+            setIsNewKp={setIsNewKp}
+            getEmptyFormData={getEmptyFormData} />}
       />
-      <div className="preview">
-        <Header
-          managerName={formData.managerName}
-          managerJobTitle={formData.managerJobTitle}
-          managerEmail={formData.managerEmail}
-          managerTel={formData.managerTel}
-          kpNumber={formData.kpNumber}
-          kpDate={formatDate(formData.kpDate)}
-          contractNumber={formData.contractNumber}
-          contractDate={formatDate(formData.contractDate)}
-          managerPhoto={formData.managerPhoto} />
-        {listsKp.map((item) => (
-          <Kp
-            key={item.id}
-            startEvent={formatDate(formData.startEvent)}
-            endEvent={formatDate(formData.endEvent)}
-            eventPlace={formData.eventPlace}
-            countOfPerson={formData.countOfPerson}
-            list={item}
+
+      {/* Страница формы нового КП */}
+      <Route
+        path="/new"
+        element={
+          <Form
+            dateToISO={toISO}
+            listsSummary={listsKp}
+            onSubmit={(data) => addToDb(data, listsKp)}
+            addList={(rows) => dispatch({ type: 'ADD_ROW_IN_PDF', payload: rows })}
+            kpNumber={formData.kpNumber}
+            formInfo={formData}
+          />
+        }
+      />
+
+      <Route
+        path="/kp/:kpNumber"
+        element={<KpLoader dispatch={dispatch} setIsNewKp={setIsNewKp} />}
+      />
+
+      {/* Страница превью КП */}
+      <Route
+        path="/preview"
+        element={
+          <Preview
+            formData={formData}
+            listsKp={listsKp}
+            isNewKp={isNewKp}
+            dispatch={dispatch}
             deleteRow={deleteRow}
-            id={item.id}
             deleteList={deleteList}
-            GetPrice={GetPrice}
-            listTitle={formData.listTitle}
-            startTimeStartEvent={formData.startTimeStartEvent}
-            endTimeStartEvent={formData.endTimeStartEvent}
-            startTimeEndEvent={formData.startTimeEndEvent}
-            endTimeEndEvent={formData.endTimeEndEvent}
             deleteRowFromDb={deleteRowFromDb}
             updateRowInDb={updateRowInDb}
-            isNewKp={isNewKp}
             addRowOnList={addRowOnList}
-            dispatch={dispatch}
+            GetPrice={GetPrice}
+            downloadPDF={exportPDF}
+            downloadSpec={downloadSpec}
           />
-        ))}
-        <div ref={compactPdfRef}
-          style={{
-            visibility: 'hidden',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: -9999
-          }}>
-          {listsKp.map((list, index) => (
-            <KpCompact
-              key={`compact-${index}`}
-              list={list}
-              deleteRow={deleteRow}
-              deleteRowFromDb={deleteRowFromDb}
-              updateRowInDb={updateRowInDb}
-              listTitle={formData.listTitle}
-              startEvent={formatDate(formData.startEvent)}
-              endEvent={formatDate(formData.endEvent)}
-              startTimeStartEvent={formData.startTimeStartEvent}
-              endTimeStartEvent={formData.endTimeStartEvent}
-              startTimeEndEvent={formData.startTimeEndEvent}
-              endTimeEndEvent={formData.endTimeEndEvent}
-              eventPlace={formData.eventPlace}
-              countOfPerson={formData.countOfPerson}
-              isNewKp={isNewKp}
-              dispatch={dispatch}
-              isCompact={true}
-            />
-          ))}
-        </div>
-
-        <Suspense fallback={<div>Загрузка Footer...</div>}>
-          <Footer
-            lists={listsKp}
-            countOfPerson={formData.countOfPerson}
-            logisticsCost={parseInt(formData.logisticsCost)}
-            isWithinMkad={formData.isWithinMkad}
-            GetPrice={GetPrice} />
-        </Suspense>
-      </div>
-    </div>
+        }
+      />
+    </Routes>
   );
 }
 

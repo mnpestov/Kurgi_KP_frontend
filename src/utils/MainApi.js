@@ -1,3 +1,5 @@
+import { normalizeKpResponse } from '../utils/normalize';
+
 class Api {
     constructor({ baseUrl }) {
         this._baseUrl = baseUrl;
@@ -15,6 +17,12 @@ class Api {
         })
             .then(this._checkResponse)
     }
+
+    getLastKps() {
+        return fetch(`${this._baseUrl}/kp/latest`, { method: 'GET' })
+            .then(this._checkResponse);
+    }
+
     getLastKpNumber() {
         return fetch(`${this._baseUrl}/kp/lastKpNumber`, {
             headers: {}

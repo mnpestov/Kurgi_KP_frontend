@@ -1,415 +1,660 @@
-import React, { useState, useCallback } from "react";
-import './Form.css';
-import FormRow from '../FormRow/FormRow';
-import ProductPopup from '../ProductPopup/ProductPopup';
+import React, { useState, useCallback, useEffect } from "react";
+import { Button, Input, DatePicker, Switcher } from '@skbkontur/react-ui';
+import { Add } from '@skbkontur/react-icons';
+import "./Form.css";
+import FormRow from "../FormRow/FormRow";
+import ProductPopup from "../ProductPopup/ProductPopup";
+import PavelPhoto from '../../images/PavelPhoto.png';
+import PeterPhoto from '../../images/PeterPhoto.jpg';
 
-function Form({
-  downloadPDF,
-  addRowInPdf,
-  handleManagerChange,
-  handleChangeInput,
-  searchKp,
-  kpNumber,
-  formData,
-  deleteKp,
-  downloadSpec
-}) {
+function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }) {
+  // Локальное состояние для полей формы КП
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [request, setReq] = useState('')
-  // console.log('we are in form now');
-  // console.log(formData);
-
-
-  function extractNumberFromPersonString(str) {
-    if (!str) return '';
-    const match = String(str).match(/\d+/);
-    return match ? Number(match[0]) : '';
-  }
-
-  const handleSearchKp = () => {
-    console.log(request);
-
-    searchKp(request)
-  }
-
-  const handleChangeSearchInput = (e) => {
-    setReq(e.target.value)
-  }
-
-  // Универсальный обработчик изменений ввода
-  const handleInputChange = useCallback((e) => {
-    const { id, name, value } = e.target;
-    setProducts(prevProducts => {
-      const existingProduct = prevProducts.find(product => product.id === id);
-      if (existingProduct) {
-        const updatedProduct = { ...existingProduct, [name]: value };
-        // Если изменяется количество или цена, пересчитываем итог
-        if (name === 'countOfProduct' || name === 'priceOfProduct') {
-          const count = parseInt(updatedProduct.countOfProduct, 10) || 0;
-          const price = parseInt(updatedProduct.priceOfProduct, 10) || 0;
-          updatedProduct.total = count * price;
-        }
-        return prevProducts.map(product => product.id === id ? updatedProduct : product);
-      } else {
-        // Создание нового товара
-        const newProduct = { id, [name]: value };
-        if (name === 'countOfProduct' || name === 'priceOfProduct') {
-          newProduct.total = 0;
-        }
-        return [...prevProducts, newProduct];
-      }
-    });
-  }, []);
-
-  const handleAddProduct = (productData) => {
-    console.log('add');
-
-    setProducts((prevProducts) => [
-      ...prevProducts,
-      {
-        id: Date.now(), // Уникальный идентификатор (можно использовать UUID или другой метод)
-        ...productData, // Добавляем все поля из productData
-      },
-    ]);
+  const [formData, setFormData] = useState({
+    kpNumber: kpNumber,
+    kpDate: formInfo.kpDate,
+    contractNumber: formInfo.contractNumber,
+    contractDate: formInfo.contractDate,
+    startEvent: formInfo.startEvent,
+    endEvent: formInfo.endEvent,
+    startTimeStartEvent: formInfo.startTimeStartEvent || '10:00',
+    endTimeStartEvent: formInfo.endTimeStartEvent || '20:00',
+    startTimeEndEvent: formInfo.startTimeEndEvent || '10:00',
+    endTimeEndEvent: formInfo.endTimeEndEvent || '20:00',
+    eventPlace: formInfo.eventPlace,
+    countOfPerson: formInfo.countOfPerson,
+    listTitle: formInfo.listTitle,
+    isWithinMkad: formInfo.isWithinMkad,       // будем хранить как boolean (true/false) или "" до выбора
+    logisticsCost: formInfo.logisticsCost,
+    managerName: formInfo.managerName,
+    managerJobTitle: formInfo.managerJobTitle,
+    managerEmail: formInfo.managerEmail,
+    managerTel: formInfo.managerTel,
+    managerPhoto: formInfo.managerPhoto,
+    manager: formInfo.manager || 'peter',
+  });
+  const [errors, setErrors] = useState({
+    kpNumber: '',
+    kpDate: '',
+    contractNumber: '',
+    contractDate: '',
+    startEvent: '',
+    endEvent: '',
+    startTimeStartEvent: '',
+    endTimeStartEvent: '',
+    startTimeEndEvent: '',
+    endTimeEndEvent: '',
+    eventPlace: '',
+    countOfPerson: '',
+    logisticsCost: '',
+    listTitle: '',
+    _lists: '', // ошибки по листам/позициям при финальном сабмите
+  });
+  const MANAGERS = {
+    peter: {
+      managerPhoto: PeterPhoto,
+      managerName: 'Петр Кург',
+      managerJobTitle: 'Руководитель проекта',
+      managerEmail: 'kurgi-bar@yandex.ru',
+      managerTel: '+7 925 516-31-16',
+    },
+    pavel: {
+      managerPhoto: PavelPhoto,
+      managerName: 'Павел Кург',
+      managerJobTitle: 'Руководитель проекта',
+      managerEmail: 'kurgi-bar@yandex.ru',
+      managerTel: '+7 925 516-31-16',
+    },
   };
 
-  // Удаление строки товара
-  const handleRemoveProduct = useCallback((id) => {
-    setProducts(prevProducts => prevProducts.filter(product => product.id !== id));
+  const [productToEdit, setProductToEdit] = useState(null);
+  // Состояние для списка позиций КП (таблица)
+  const [products, setProducts] = useState([]);
+  const [showProductPopup, setShowProductPopup] = useState(false);
+
+  useEffect(() => {
+    if (kpNumber != null && kpNumber !== '' && kpNumber !== formData.kpNumber) {
+      setFormData(prev => ({ ...prev, kpNumber }));
+      setErrors(prev => ({ ...prev, kpNumber: '' }));
+    }
+  }, [kpNumber]);
+  useEffect(() => {
+    const key = formData.manager || 'peter';
+    const patch = {};
+    for (const k of ['managerPhoto', 'managerName', 'managerJobTitle', 'managerEmail', 'managerTel']) {
+      if (!formData[k]) patch[k] = MANAGERS[key][k];
+    }
+    if (Object.keys(patch).length) {
+      setFormData(prev => ({ ...prev, ...patch }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Сохранение строк товаров в списке КП
-  const addRow = useCallback((e) => {
-    e.preventDefault();
-    // Разбиваем массив products на группы по 7 элементов
-    const chunkSize = 7;
-    for (let i = 0; i < products.length; i += chunkSize) {
-      const chunk = products.slice(i, i + chunkSize);
-      addRowInPdf(chunk); // Передаём текущую группу в addRowInPdf
+  // const toISO = (v) => {
+  //   if (!v) return null;
+  //   if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
+  //     const [d, m, y] = v.split('.');
+  //     return `${y}-${m}-${d}`;
+  //   }
+  //   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  //   const d = new Date(v);
+  //   return isNaN(d) ? null : d.toISOString().slice(0, 10);
+  // };
+
+  const isValidDate = (v) => /^\d{2}\.\d{2}\.\d{4}$/.test(v) || /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v) && +v.slice(0, 2) < 24 && +v.slice(3, 5) < 60;
+  const isPositiveInt = (v) => /^\d+$/.test(String(v)) && +v >= 1 && +v <= 99999;
+  const isNonNegativeNumber = (v) => /^-?\d+(\.\d+)?$/.test(String(v)) && +v >= 0;
+  const lenBetween = (s, min, max) => (s ?? '').toString().length >= min && (s ?? '').toString().length <= max;
+
+  // Валидация одного поля
+  const validateField = (name, value, all) => {
+    switch (name) {
+      case 'kpNumber':
+        if (!String(value).trim()) return 'Обязательное поле';
+        if (!/^\d{1,10}$/.test(String(value))) return 'Только цифры, 1–10 символов';
+        return '';
+      case 'kpDate':
+        if (!isValidDate(value)) return 'Введите дату в формате DD.MM.YYYY';
+        return '';
+      case 'contractNumber':
+        if (!String(value).trim()) return 'Обязательное поле';
+        if (!lenBetween(value, 1, 30)) return 'До 30 символов';
+        return '';
+      case 'contractDate':
+        if (!isValidDate(value)) return 'Введите дату в формате DD.MM.YYYY';
+        return '';
+      case 'startEvent':
+        if (!isValidDate(value)) return 'Введите дату в формате DD.MM.YYYY';
+        if (all?.endEvent && dateToISO(value) && dateToISO(all.endEvent) && dateToISO(value) > dateToISO(all.endEvent))
+          return 'Дата начала позже даты окончания';
+        return '';
+      case 'endEvent':
+        if (!isValidDate(value)) return 'Введите дату в формате DD.MM.YYYY';
+        if (all?.startEvent && dateToISO(value) && dateToISO(all.startEvent) && dateToISO(all.startEvent) > dateToISO(value))
+          return 'Дата окончания раньше даты начала';
+        return '';
+      case 'startTimeStartEvent':
+      case 'endTimeStartEvent':
+      case 'startTimeEndEvent':
+      case 'endTimeEndEvent':
+        if (!isValidTime(value)) return 'Формат HH:MM';
+        return '';
+      case 'eventPlace':
+        if (!String(value).trim()) return 'Обязательное поле';
+        if (!lenBetween(value, 2, 120)) return '2–120 символов';
+        return '';
+      case 'countOfPerson':
+        if (!isPositiveInt(value)) return 'Целое число 1…99999';
+        return '';
+      case 'logisticsCost':
+        if (!isNonNegativeNumber(value)) return 'Число ≥ 0';
+        return '';
+      case 'listTitle':
+        if (!String(value).trim()) return 'Обязательное поле';
+        if (!lenBetween(value, 2, 80)) return '2–80 символов';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  // Полная проверка формы + листов (на submit)
+  const validateForm = (all, lists) => {
+    const next = { ...errors, _lists: '' };
+
+    // поля формы
+    Object.keys(next).forEach(k => {
+      if (k === '_lists') return;
+      next[k] = validateField(k, all[k], all);
+    });
+
+    // листы/позиции
+    if (!Array.isArray(lists) || lists.length === 0) {
+      next._lists = 'Добавьте хотя бы один лист';
+    } else if (lists.some(l => !Array.isArray(l.rows) || l.rows.length === 0)) {
+      next._lists = 'В каждом листе должна быть хотя бы одна позиция';
     }
 
-    e.target.reset(); // Сброс формы
-    setProducts([]);  // Очищаем массив products
-  }, [products, addRowInPdf]);
+    const isValid = Object.values(next).every(v => !v);
+    return { next, isValid };
+  };
 
+  const isFormValidNow = (() => {
+    // пробегаемся по полям без setErrors
+    const fieldsOk = Object.keys(errors).every(k => k === '_lists' || !errors[k]) &&
+      validateField('kpNumber', formData.kpNumber, formData) === '' &&
+      validateField('kpDate', formData.kpDate, formData) === '' &&
+      validateField('contractNumber', formData.contractNumber, formData) === '' &&
+      validateField('contractDate', formData.contractDate, formData) === '' &&
+      validateField('startEvent', formData.startEvent, formData) === '' &&
+      validateField('endEvent', formData.endEvent, formData) === '' &&
+      validateField('startTimeStartEvent', formData.startTimeStartEvent, formData) === '' &&
+      validateField('endTimeStartEvent', formData.endTimeStartEvent, formData) === '' &&
+      validateField('startTimeEndEvent', formData.startTimeEndEvent, formData) === '' &&
+      validateField('endTimeEndEvent', formData.endTimeEndEvent, formData) === '' &&
+      validateField('eventPlace', formData.eventPlace, formData) === '' &&
+      validateField('countOfPerson', formData.countOfPerson, formData) === '' &&
+      validateField('logisticsCost', formData.logisticsCost, formData) === '' &&
+      validateField('listTitle', formData.listTitle, formData) === '';
+    const listsOk = Array.isArray(listsSummary) &&
+      listsSummary.length > 0 &&
+      listsSummary.every(l => Array.isArray(l.rows) && l.rows.length > 0);
+    return fieldsOk && listsOk;
+  })();
+
+  // мгновенная валидация при изменении поля
+  const handleValidatedChange = (name, value) => {
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      const msg = validateField(name, value, updated);
+      setErrors(e => ({ ...e, [name]: msg }));
+      return updated;
+    });
+  };
+
+  const handleManagerChange = (value) => {
+    const m = value; // 'peter' | 'pavel'
+    setFormData(prev => ({
+      ...prev,
+      manager: m,
+      ...MANAGERS[m], // закидываем все связанные поля
+    }));
+  };
+
+  // Валидация: пустые даты не блокируют форму; сравниваем только если обе заданы
+  const isDatesValid = (() => {
+    const s = dateToISO(formData.startEvent);
+    const e = dateToISO(formData.endEvent);
+    if (!s || !e) return true;
+    return s <= e;
+  })();
+
+  const handleEditProduct = useCallback((product) => {
+    setProductToEdit(product);
+    setShowProductPopup(true);
+  }, []);
+
+  const handleUpdateProduct = useCallback((updatedProduct) => {
+    setProducts(prev => prev.map(item =>
+      item.id === updatedProduct.id
+        ? {
+          ...item,           // Сохраняем неизмененные поля
+          ...updatedProduct  // Обновляем измененные поля
+        }
+        : item
+    ));
+    setProductToEdit(null);
+    setShowProductPopup(false);
+  }, []);
+
+
+  // Обработчик изменения полей ввода
+  // const handleInputChange = useCallback((e) => {
+  //   const { name, value, type, checked } = e.target;
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     [name]: type === "checkbox" ? checked : (type === "radio" ? value === "true" : value)
+  //   }));
+  // }, []);
+
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target ?? e;
+    handleValidatedChange(name, value);
+  }, []); // eslint-disable-line
+
+  // Добавление новой позиции в таблицу (при сохранении всплывающего окна)
+  const handleAddProduct = (product) => {
+    // Присваиваем временный ID новой позиции и добавляем в список
+    const newItem = { id: Date.now(), ...product };
+    setProducts(prev => [...prev, newItem]);
+    setShowProductPopup(false);
+  };
+
+  // Удаление позиции из списка по ID
+  const handleRemoveProduct = useCallback((id) => {
+    setProducts(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  // Отправка формы (создание нового КП)
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const dataToSend = {
+  //     ...formData,
+  //     isWithinMkad: formData.isWithinMkad ? true : false  // гарантировать булевый тип
+  //   };
+  //   // Вызов колбека или API для сохранения КП
+  //   console.log(dataToSend);
+
+  //   if (onSubmit) {
+  //     onSubmit(dataToSend);
+  //   } else {
+  //     MainApi.createKp(dataToSend)
+  //       .then(() => console.log("КП успешно создан"))
+  //       .catch(err => console.error("Ошибка при создании КП:", err));
+  //   }
+  // };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { next, isValid } = validateForm(formData, listsSummary);
+    setErrors(next);
+    if (!isValid) {
+      // можно пробежаться и сфокусировать первое ошибочное поле, если нужно
+      alert('Заполните обязательные поля корректно');
+      return;
+    }
+    if (typeof onSubmit === 'function') {
+      onSubmit(formData);
+    } else {
+      console.error('onSubmit не передан в Form');
+    }
+  };
 
   return (
-    <div className="form">
-      <fieldset className="form__search">
-        <span>Поиск коммерческого предложения</span>
-        <div className="search__search-line">
-          <input type="text" name="request" className="search__input" placeholder="Введите номер коммерческого предложения" onChange={handleChangeSearchInput} autoComplete="off" required />
-          <button type="button" className="search__btn" onClick={handleSearchKp}></button>
-        </div>
-      </fieldset>
-      {/* <fieldset className="form__search">
-        <span>Загрузить последнее КП?</span>
-          <button type="button" className="search__btn_in-localStorage" onClick={handleSearchKp}>Загрузить</button>
-      </fieldset> */}
-      <fieldset className="form__details">
-        {/* Реквизиты КП */}
-        <div className="form__detail">
-          <h2 className="form__title">Реквизиты КП</h2>
-          <label htmlFor="kpNumber" className="label">№ КП
-            <input
+    <form className="form" onSubmit={handleSubmit}>
+      <h1 className="form__title">Коммерческое предложение</h1>
+
+      {/* Секция: Основная информация */}
+      <div className="form__section">
+        <h3 className="form__section-title">Основная информация</h3>
+        <div className="form__fields">
+          <div className="form__field">
+            <label className="form__label" htmlFor="kpNumber">Номер КП</label>
+            <Input
               id="kpNumber"
-              className="input"
-              type="text"
-              placeholder="KP number"
               name="kpNumber"
-              onChange={handleChangeInput}
-              value={kpNumber}
-              required
-              disabled
+              className={`form__input ${errors.kpNumber ? 'error' : ''}`}
+              value={formData.kpNumber}
+              onValueChange={value => handleInputChange({ target: { name: 'kpNumber', value } })}
             />
-          </label>
-          <label htmlFor="kpDate" className="label">Дата КП
-            <input
-              className="input"
+          </div>
+          <div className="form__field">
+            <label className="form__label" htmlFor="kpDate">Дата КП</label>
+            <DatePicker
               id="kpDate"
-              type="date"
               name="kpDate"
-              min="2000-01-01"
-              max="2030-12-31"
-              onChange={handleChangeInput}
-              value={formData.kpDate || ''}
-              required
+              className={`form__input ${errors.kpDate ? 'error' : ''}`}
+              value={formData.kpDate}
+              onValueChange={value => handleInputChange({ target: { name: 'kpDate', value } })}
             />
-          </label>
-          <label htmlFor="contractNumber" className="label">№ договора
-            <input
+          </div>
+          <div className="form__field">
+            <label className="form__label" htmlFor="contractNumber">№ договора</label>
+            <Input
               id="contractNumber"
-              className="input"
-              type="text"
-              placeholder="Contract number"
               name="contractNumber"
-              onChange={handleChangeInput}
-              value={formData.contractNumber || ''}
-              required
+              className={`form__input ${errors.contractNumber ? 'error' : ''}`}
+              value={formData.contractNumber}
+              onValueChange={value => handleInputChange({ target: { name: 'contractNumber', value } })}
             />
-          </label>
-          <label htmlFor="contractDate" className="label">Дата договора
-            <input
+          </div>
+          <div className="form__field">
+            <label className="form__label" htmlFor="contractDate">Дата договора</label>
+            <DatePicker
               id="contractDate"
-              className="input"
-              type="date"
               name="contractDate"
-              min="2000-01-01"
-              max="2030-12-31"
-              onChange={handleChangeInput}
-              value={formData.contractDate || ''}
-              required
+              className={`form__input ${errors.contractDate ? 'error' : ''}`}
+              value={formData.contractDate}
+              onValueChange={value => handleInputChange({ target: { name: 'contractDate', value } })}
             />
-          </label>
-        </div>
-        {/* Реквизиты КП */}
-
-        {/* Общая информация по мероприятию */}
-        <div className="form__detail">
-          <h2 className="form__title">Общая информация по мероприятию</h2>
-          <label htmlFor="listTitle" className="label">Заголовок
-            <input
-              id="listTitle"
-              className="input"
-              type="text"
-              placeholder="Заголовок"
-              name="listTitle"
-              onChange={handleChangeInput}
-              value={formData.listTitle || ''}
-              required
-            />
-          </label>
-          <label htmlFor="startEvent" className="label">Дата начала мероприятия
-            <input
-              id="startEvent"
-              className="input"
-              type="date"
-              name="startEvent"
-              min="2000-01-01"
-              max="2030-12-31"
-              onChange={handleChangeInput}
-              value={formData.startEvent || ''}
-              required
-            />
-            <div className="inputTime">
-              C
-              <input
-                id="startTimeStartEvent"
-                className="input"
-                type="time"
-                name="startTimeStartEvent"
-                min="00:00"
-                max="23:59"
-                onChange={handleChangeInput}
-                value={formData.startTimeStartEvent || ''}
-                required
-              />
-              по
-              <input
-                id="endTimeStartEvent"
-                className="input"
-                type="time"
-                name="endTimeStartEvent"
-                min="00:00"
-                max="23:59"
-                onChange={handleChangeInput}
-                value={formData.endTimeStartEvent || ''}
-                required
-              />
-            </div>
-          </label>
-          <label htmlFor="endEvent" className="label">Дата окончания мероприятия
-            <input
-              id="endEvent"
-              className="input"
-              type="date"
-              name="endEvent"
-              min="2000-01-01T00:00"
-              max="2030-12-31T23:59"
-              onChange={handleChangeInput}
-              value={formData.endEvent || ''}
-              required
-            />
-            <div className="inputTime">
-              C
-              <input
-                id="startTimeEndEvent"
-                className="input"
-                type="time"
-                name="startTimeEndEvent"
-                min="00:00"
-                max="23:59"
-                onChange={handleChangeInput}
-                value={formData.startTimeEndEvent || ''}
-                required
-              />
-              по
-              <input
-                id="endTimeEndEvent"
-                className="input"
-                type="time"
-                name="endTimeEndEvent"
-                min="00:00"
-                max="23:59"
-                onChange={handleChangeInput}
-                value={formData.endTimeEndEvent || ''}
-                required
-              />
-            </div>
-          </label>
-          <label htmlFor="eventPlace" className="label">Место проведения
-            <input
-              id="eventPlace"
-              className="input"
-              type="text"
-              placeholder="Место проведения"
-              name="eventPlace"
-              onChange={handleChangeInput}
-              value={formData.eventPlace || ''}
-              required
-            />
-          </label>
-          <label htmlFor="countOfPerson" className="label">Количество персон
-            <input
-              id="countOfPerson"
-              className="input"
-              type="number"
-              placeholder="Количество персон"
-              name="countOfPerson"
-              onChange={handleChangeInput}
-              value={extractNumberFromPersonString(formData.countOfPerson)}
-              required
-            />
-          </label>
-        </div>
-        {/* Общая информация по мероприятию */}
-
-        {/* Доставка */}
-        <div className="form__detail">
-          <h2 className="form__title">Доставка</h2>
-          <span className="label">В пределах МКАД?</span>
-          <div className="radio-group">
-            <label htmlFor="logisticTrue">
-              <input
-                id="logisticTrue"
-                type="radio"
-                name="isWithinMkad"
-                value="true"
-                onChange={handleChangeInput}
-                required
-              />
-              <span className="radio-title">Да</span>
-            </label>
-            <label htmlFor="logisticFalse">
-              <input
-                id="logisticFalse"
-                type="radio"
-                name="isWithinMkad"
-                value="false"
-                onChange={handleChangeInput}
-                required
-              />
-              <span className="radio-title">Нет</span>
-            </label>
-          </div>
-          <label htmlFor="logisticsCost" className="label">Стоимость логистики
-            <input
-              id="logisticsCost"
-              className="input"
-              type="number"
-              placeholder="Стоимость логистики"
-              name="logisticsCost"
-              onChange={handleChangeInput}
-              value={formData.logisticsCost || ''}
-              min="0"
-              required
-            />
-          </label>
-        </div>
-        {/* Доставка */}
-
-        {/* Менеджер */}
-        <div className="form__detail">
-          <h2 className="form__title">Менеджер</h2>
-          <div className="radio-group">
-            <label htmlFor="managerTrue">
-              <input
-                id="managerTrue"
-                type="radio"
-                name="manager"
-                value="true"
-                onChange={handleManagerChange}
-                required
-              />
-              <span className="radio-title">Петр</span>
-            </label>
-            <label htmlFor="managerFalse">
-              <input
-                id="managerFalse"
-                type="radio"
-                name="manager"
-                value="false"
-                onChange={handleManagerChange}
-                required
-              />
-              <span className="radio-title">Павел</span>
-            </label>
           </div>
         </div>
-        {/* Менеджер */}
-
-      </fieldset >
-      {/* Товары */}
-      < fieldset className="form__products" >
-        <h2 className="form__title">Товары</h2>
-        <form id="form" className="form__row" onSubmit={addRow}>
-          <table>
-            <thead>
-              <tr>
-                <th>Наименование товара</th>
-                <th>Описание/состав товара</th>
-                <th>Вес товара</th>
-                <th>Тип товара</th>
-                <th>Количество товара</th>
-                <th>Стоимость товара</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product, index) => (
-                <FormRow
-                  key={product.id}
-                  id={product.id}
-                  number={index + 1}
-                  productData={product}
-                  handleInputChange={handleInputChange}
-                  handleRemoveProduct={handleRemoveProduct}
-                />
-              ))}
-            </tbody>
-          </table>
-
-          <button type="button" onClick={() => setShowPopup(true)} className="add-product-button">Добавить товар</button>
-          {showPopup && (
-            <ProductPopup
-              onClose={() => setShowPopup(false)} // Закрытие popup
-              onSave={handleAddProduct} // Передаем функцию для сохранения данных
-            />
-          )}
-          <button type="submit" className="save-button">Сохранить</button>
-        </form>
-      </fieldset >
-      <div>
-        <button type="button" onClick={deleteKp} className="download-button form__delete-kp-btn">
-          Удалить КП
-        </button>
-        <button type="button" onClick={downloadPDF} className="download-button">Скачать PDF</button>
-        <button type="button" onClick={downloadSpec} className="download-button">Скачать спецификацию</button>
       </div>
-    </div >
+
+      {/* Секция: Данные мероприятия */}
+      <div className="form__section">
+        <h3 className="form__section-title">Данные мероприятия</h3>
+        <div className="form__fields">
+
+          <div className="form__field">
+            <label className="form__label" htmlFor="startEvent">Дата начала</label>
+            <DatePicker
+              id="startEvent"
+              name="startEvent"
+              className={`form__input ${errors.startEvent ? 'error' : ''}`}
+              value={formData.startEvent}
+              onValueChange={value => handleInputChange({ target: { name: 'startEvent', value } })}
+            />
+          </div>
+
+          <div className="form__field form__field__time">
+            <div className="form__field">
+              <label className="form__label" htmlFor="startTimeStartEvent">Время начала</label>
+              <Input
+                width="100%"
+                type="time"
+                id="startTimeStartEvent"
+                name="startTimeStartEvent"
+                className={`form__input ${errors.startTimeStartEvent ? 'error' : ''}`}
+                value={formData.startTimeStartEvent}
+                onValueChange={value => handleInputChange({ target: { name: 'startTimeStartEvent', value } })}
+              />
+
+            </div>
+            <div className="form__field">
+              <label className="form__label" htmlFor="endTimeStartEvent">Время окончания</label>
+              <Input
+                width="100%"
+                type="time"
+                id="endTimeStartEvent"
+                name="endTimeStartEvent"
+                className={`form__input ${errors.endTimeStartEvent ? 'error' : ''}`}
+                value={formData.endTimeStartEvent}
+                onValueChange={value => handleInputChange({ target: { name: 'endTimeStartEvent', value } })}
+              />
+
+            </div>
+          </div>
+
+          <div className="form__field">
+            <label className="form__label" htmlFor="endEvent">Дата окончания</label>
+            <DatePicker
+              id="endEvent"
+              name="endEvent"
+              className={`form__input ${errors.endEvent ? 'error' : ''}`}
+              value={formData.endEvent}
+              onValueChange={value => handleInputChange({ target: { name: 'endEvent', value } })}
+            />
+            {!isDatesValid && (
+              <div className="form__error" style={{ color: '#d00', marginTop: 8 }}>
+                Дата начала не может быть позже даты окончания
+              </div>
+            )}
+          </div>
+
+          <div className="form__field form__field__time">
+            <div className="form__field">
+              <label className="form__label" htmlFor="startTimeEndEvent">Время начала</label>
+              <Input
+                width="100%"
+                type="time"
+                id="startTimeEndEvent"
+                name="startTimeEndEvent"
+                className={`form__input ${errors.startTimeEndEvent ? 'error' : ''}`}
+                value={formData.startTimeEndEvent}
+                onValueChange={value => handleInputChange({ target: { name: 'startTimeEndEvent', value } })}
+              />
+
+            </div>
+            <div className="form__field">
+              <label className="form__label" htmlFor="endTimeEndEvent">Время окончания</label>
+              <Input
+                width="100%"
+                type="time"
+                id="endTimeEndEvent"
+                name="endTimeEndEvent"
+                className={`form__input ${errors.endTimeEndEvent ? 'error' : ''}`}
+                value={formData.endTimeEndEvent}
+                onValueChange={value => handleInputChange({ target: { name: 'endTimeEndEvent', value } })}
+              />
+
+            </div>
+          </div>
+
+          <div className="form__field">
+            <label className="form__label" htmlFor="eventPlace">Место проведения</label>
+            <Input
+              id="eventPlace"
+              name="eventPlace"
+              value={formData.eventPlace}
+              className={`form__input ${errors.eventPlace ? 'error' : ''}`}
+              onValueChange={value => handleInputChange({ target: { name: 'eventPlace', value } })}
+            />
+          </div>
+
+          <div className="form__field">
+            <label className="form__label" htmlFor="countOfPerson">Кол-во персон</label>
+            <Input
+              type="number"
+              id="countOfPerson"
+              name="countOfPerson"
+              className={`form__input ${errors.countOfPerson ? 'error' : ''}`}
+              value={formData.countOfPerson}
+              onValueChange={value => handleInputChange({ target: { name: 'countOfPerson', value } })}
+            />
+          </div>
+
+          <div className="form__field form__field--full">
+            <label className="form__label" htmlFor="listTitle">Название мероприятия</label>
+            <Input
+              id="listTitle"
+              name="listTitle"
+              className={`form__input ${errors.listTitle ? 'error' : ''}`}
+              value={formData.listTitle}
+              onValueChange={value => handleInputChange({ target: { name: 'listTitle', value } })}
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* Секция: Логистика */}
+      <div className="form__section">
+        <h3 className="form__section-title">Логистика</h3>
+        <div className="form__fields">
+
+          <div className="form__field">
+            <label className="form__label">В пределах МКАД?</label>
+            <Switcher
+              value={formData.isWithinMkad === true ? 'true' : 'false'}
+              items={[
+                { value: 'true', label: 'Да' },
+                { value: 'false', label: 'Нет' },
+              ]}
+              onValueChange={(value) =>
+                handleInputChange({
+                  target: {
+                    name: 'isWithinMkad',
+                    value: value === 'true',
+                  },
+                })
+              }
+            />
+          </div>
+
+          <div className="form__field">
+            <label className="form__label" htmlFor="logisticsCost">
+              {formData.isWithinMkad
+                ? 'Стоимость доставки в пределах МКАД'
+                : 'Стоимость логистики за МКАД'}
+            </label>
+            <Input
+              type="number"
+              id="logisticsCost"
+              name="logisticsCost"
+              className={`form__input ${errors.logisticsCost ? 'error' : ''}`}
+              value={formData.logisticsCost}
+              onValueChange={(value) =>
+                handleInputChange({
+                  target: { name: 'logisticsCost', value },
+                })
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+
+      {/* Секция: Менеджер */}
+      <div className="form__section">
+        <h3 className="form__section-title">Ответственный менеджер</h3>
+        <div className="form__fields">
+          <div className="form__field form__field--full">
+            <Switcher
+              value={formData.manager || 'peter'}
+              items={[
+                { value: 'peter', label: 'Петр' },
+                { value: 'pavel', label: 'Павел' },
+              ]}
+              onValueChange={handleManagerChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Секция: Состав КП (таблица с позициями) */}
+      <div className="form__section">
+        <h3 className="form__section-title">Состав КП</h3>
+
+        <div className="form__table-container">
+          {/* Заголовок таблицы */}
+          <div className="form__table-header">
+            <div className="cell cell--name">Наименование</div>
+            <div className="cell cell--composition">Состав</div>
+            <div className="cell cell--weight">Вес</div>
+            <div className="cell cell--qty">Кол-во</div>
+            <div className="cell cell--price">Стоимость</div>
+            <div className="cell cell--total">Цена Итого</div>
+            <div className="cell cell--edit"></div>
+            <div className="cell cell--delete"></div>
+          </div>
+
+          {/* Ряды таблицы */}
+          {products.map((prod) => (
+            <FormRow
+              key={prod.id}
+              productData={prod}
+              handleRemoveProduct={handleRemoveProduct}
+              handleEditProduct={handleEditProduct}
+            />
+          ))}
+          {errors._lists && (
+            <div className="form__error" style={{ marginTop: 8 }}>{errors._lists}</div>
+          )}
+        </div>
+
+        {/* Кнопки управления */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginTop: '16px'
+        }}>
+          <Button
+            icon={<Add />}
+            use="default"
+            onClick={() => {
+              setProductToEdit(null);
+              setShowProductPopup(true);
+            }}
+          >
+            Добавить позицию
+          </Button>
+
+          <Button
+            use="primary"
+            onClick={() => {
+              if (!products || products.length === 0) {
+                alert('Добавьте хотя бы одну позицию перед сохранением листа');
+                return;
+              }
+              if (typeof addList === 'function') {
+                addList(products);
+              }
+              setProducts([]);         // очистим текущий временный лист
+              setProductToEdit(null);  // сброс редактируемого продукта, если был
+              alert('Лист сохранён');
+            }}
+          >
+            Сохранить лист
+          </Button>
+        </div>
+        {Array.isArray(listsSummary) && listsSummary.length > 0 && (
+          <div className="form__saved-lists" style={{ marginTop: '16px' }}>
+            <h4>Сохранённые листы</h4>
+            <ul style={{ paddingLeft: '20px' }}>
+              {listsSummary.map((list, idx) => (
+                <li key={idx}>
+                  <strong>{list.listTitle || `Лист ${idx + 1}`}</strong> — позиций: {list.rows?.length || 0}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Попап */}
+        {showProductPopup && (
+          <ProductPopup
+            onClose={() => {
+              setProductToEdit(null);
+              setShowProductPopup(false);
+            }}
+            onSave={productToEdit ? handleUpdateProduct : handleAddProduct}
+            productToEdit={productToEdit}
+          />
+        )}
+      </div>
+
+      {/* Кнопка сохранения формы */}
+      <div className="form__actions">
+        {/* <button type="submit" className="form__submit-button">Сохранить КП</button> */}
+        <Button use="primary" type="submit" disabled={!isFormValidNow}>
+          Сохранить КП
+        </Button>
+      </div>
+    </form>
   );
 }
 
-export default React.memo(Form);
+export default Form;

@@ -1,5 +1,8 @@
 import React from "react";
 import './FormRow.css';
+import { Input, Button } from '@skbkontur/react-ui';
+import { Edit, Trash } from '@skbkontur/react-icons';
+import useIsMobile from '../../hooks/useIsMobile';
 
 function FormRow({
   id,
@@ -7,111 +10,90 @@ function FormRow({
   handleInputChange,
   handleRemoveProduct,
   productData,
+  handleEditProduct,
 }) {
 
+  const isMobile = useIsMobile();
+
   return (
-    <tr className="form__row-column">
-      <td className="form__row-column-name">
-        <input
-          className="input"
-          type="text"
-          id={id}
-          placeholder="Наименование товара"
+    <div className="form__table-row">
+      <div className="cell cell--name">
+        <Input
+          disabled
+          width="100%"
           name="product"
-          // onChange={handleInputChange} 
-          autoComplete="off"
-          aria-label={`Наименование товара ${number}`}
           value={productData.product}
-          required
-          disabled
+          placeholder="Наименование товара"
         />
-      </td>
-      <td className="form__row-column-name">
-        <input
-          className="input"
-          type="text"
-          id={id}
-          placeholder="Описание/состав товара"
-          name="composition"
-          // onChange={handleInputChange} 
-          autoComplete="off"
-          aria-label={`Описание товара ${number}`}
-          value={productData.composition}
-          required
+        {isMobile && (
+          <span className="composition__mobile">{productData.composition}</span>
+        )}
+      </div>
+
+      {!isMobile && (
+        <div className="cell cell--composition">
+          <Input
+            disabled
+            width="100%"
+            name="composition"
+            value={productData.composition}
+            placeholder="Описание/состав товара"
+          />
+        </div>
+      )}
+
+      <div className="cell cell--weight">
+        <Input
           disabled
-        />
-      </td>
-      <td className="form__row-column-name">
-        <input
-          className="input"
-          type="number"
-          id={id}
-          placeholder="Вес товара"
+          width="100%"
           name="productWeight"
-          // onChange={handleInputChange} 
-          autoComplete="off"
-          aria-label={`Вес товара ${number}`}
-          min="0"
+          type="number"
           value={productData.productWeight}
-          disabled
+          placeholder="Вес"
         />
-      </td>
-      <td className="form__row-column-name">
-        <select
-          className="form__select"
-          name="typeOfProduct"
-          id={id}
-          // onChange={handleInputChange}
-          aria-label={`Тип товара ${number}`}
-          value={productData.typeOfProduct}
-          required
+      </div>
+      <div className="cell cell--qty">
+        <Input
           disabled
-        >
-          <option value="">-- Выберите тип --</option>
-          <option value="eat">Еда</option>
-          <option value="drink">Напитки</option>
-          <option value="organisation">Организация кейтеринга</option>
-        </select>
-      </td>
-      <td className="form__row-column-name">
-        <input
-          className="input"
-          type="number"
-          id={id}
-          placeholder="Количество товара"
+          width="100%"
           name="countOfProduct"
-          // onChange={handleInputChange} 
-          autoComplete="off"
-          aria-label={`Количество товара ${number}`}
-          min="0"
-          value={productData.countOfProduct}
-          required
-          disabled
-        />
-      </td>
-      <td className="form__row-column-name">
-        <input
-          className="input"
           type="number"
-          id={id}
-          placeholder="Стоимость товара"
-          name="priceOfProduct"
-          // onChange={handleInputChange} 
-          autoComplete="off"
-          aria-label={`Стоимость товара ${number}`}
-          min="0"
-          value={productData.priceOfProduct}
-          required
-          disabled
+          value={productData.countOfProduct}
+          placeholder="Кол-во"
         />
-      </td>
-      <td className="form__row-column-name actions">
-        <button type="button" onClick={() => handleRemoveProduct(id)} className="remove-button" aria-label={`Удалить товар ${number}`}>
-          Удалить
-        </button>
-      </td>
-    </tr>
+      </div>
+      <div className="cell cell--price">
+        <Input
+          disabled
+          width="100%"
+          name="priceOfProduct"
+          type="number"
+          value={productData.priceOfProduct}
+          placeholder="Стоимость"
+        />
+      </div>
+      <div className="cell cell--total">
+        {Number(productData.priceOfProduct) * Number(productData.countOfProduct) || 0}
+      </div>
+      <div className="cell cell--edit">
+        <Button
+          icon={<Edit style={{ width: 16, height: 16 }} />}
+          use="link"
+          narrow
+          onClick={() => handleEditProduct(productData)}
+        />
+      </div>
+      <div className="cell cell--delete">
+        <Button
+          icon={<Trash style={{ width: 16, height: 16 }} />}
+          use="link"
+          narrow
+          onClick={() => handleRemoveProduct(productData.id)}
+        />
+      </div>
+    </div>
   );
+
 }
 
 export default React.memo(FormRow);

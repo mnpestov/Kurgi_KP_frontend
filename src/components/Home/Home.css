@@ -1,0 +1,132 @@
+:root {
+  --color-primary: #4a76a8;       /* основной цвет бренда (пример) */
+  --color-bg: #ffffff;
+  --color-text: #333333;
+  --font-base: "Arial", sans-serif;
+}
+
+body {
+  font-family: var(--font-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  margin: 0;
+}
+
+/* Блок главной страницы */
+.home {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Поисковая строка */
+.home__search {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.home__search-input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #AAAAAA;
+  border-radius: 4px 0 0 4px;
+}
+.home__search-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #AAAAAA;
+  border-left: none;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+.home__table {
+  display: grid;
+  grid-template-columns: 150px 180px 1fr; /* ширина колонок */
+  gap: 4px 12px; /* отступы между строками и колонками */
+}
+
+.home__table-row {
+  display: contents; /* чтобы grid-ячейки вести себя как таблица */
+  cursor: pointer;
+}
+
+.home__table-header {
+  font-weight: bold;
+  background: #f5f5f5;
+}
+
+.home__table-cell {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.home__table-data:hover .home__table-cell {
+  background: #f0f8ff;
+}
+
+/* Адаптивность поиска: на мобильном кнопка под полем */
+@media (max-width: 600px) {
+  .home__search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .home__search-button {
+    border-left: 1px solid #AAAAAA; /* граница со всех сторон на мобильном */
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Кнопка создания нового КП */
+.home__create-button {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Блок списка последних КП */
+.home__recent-title {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+.home__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home__list-item {
+  border-bottom: 1px solid #E0E0E0;
+}
+.home__list-link {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+.home__list-link:hover {
+  background: #f9f9f9;
+}
+/* Стили отдельных колонок в строке списка */
+.home__kp-number {
+  font-weight: bold;
+}
+.home__kp-date, .home__kp-place {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Сообщение об отсутствии данных */
+.home__no-kp {
+  font-style: italic;
+  color: #777;
+}

@@ -54,7 +54,7 @@ function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice })
   const totals = calculateTotals(lists);
 
   return (
-    <section className="footer">
+    <section className="footer preview">
       <div className="list list_footer">
         <div className="footer__logo-container">
           <img className="logo" src={logo} alt='logo' />

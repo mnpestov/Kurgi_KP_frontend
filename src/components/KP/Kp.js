@@ -3,6 +3,7 @@ import './Kp.css';
 import logo from '../../images/logo.png';
 import Row from '../Row/Row';
 import ProductPopup from '../ProductPopup/ProductPopup';
+import { Button, Gapped } from "@skbkontur/react-ui";
 
 function Kp({
     startEvent,
@@ -35,8 +36,8 @@ function Kp({
     };
 
     const handleAddProduct = (newObj) => {
-        newObj.productId =Date.now()
-        addRowOnList(newObj, list.id) 
+        newObj.productId = Date.now()
+        addRowOnList(newObj, list.id)
     }
 
     return (
@@ -54,9 +55,9 @@ function Kp({
                                     <div className="list__subtitle_time">
                                         <p className="list__subtitle list__subtitle_time_text">время мероприятия: </p>
                                         <p>
-                                            <span className="list__subtitle_time_text list__subtitle_text">{`${startEvent.slice(0, 5)} (${startTimeStartEvent} - ${endTimeStartEvent})`}</span>
+                                            <span className="list__subtitle_time_text list__subtitle_text">{`${startEvent.slice(0, 5)} (${startTimeStartEvent.slice(0, 5)} - ${endTimeStartEvent.slice(0, 5)})`}</span>
                                             <span className="list__subtitle_time_text list__subtitle_text"> {`–`} </span>
-                                            <span className="list__subtitle_time_text list__subtitle_text">{`${endEvent.slice(0, 5)} (${startTimeEndEvent} - ${endTimeEndEvent})`}</span>
+                                            <span className="list__subtitle_time_text list__subtitle_text">{`${endEvent.slice(0, 5)} (${startTimeEndEvent.slice(0, 5)} - ${endTimeEndEvent.slice(0, 5)})`}</span>
                                         </p>
                                     </div>
                                 </th>
@@ -81,8 +82,21 @@ function Kp({
                     </div>
                 </div>
             </div>
-            <button type="button" className="list-button button__list_delete remove-button" onClick={handleDeleteList}>Удалить лист</button>
-            <button type="button" onClick={() => setShowPopup(true)} className="list-button button__list_delete add-button">Добавить товар на лист</button>
+            <Gapped gap={12}>
+                <Button
+                    use="danger"
+                    onClick={handleDeleteList}
+                >
+                    Удалить лист
+                </Button>
+
+                <Button
+                    use="primary"
+                    onClick={() => setShowPopup(true)}
+                >
+                    Добавить товар на лист
+                </Button>
+            </Gapped>
             {showPopup && (
                 <ProductPopup
                     onClose={() => setShowPopup(false)} // Закрытие popup
