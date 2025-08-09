@@ -95,6 +95,27 @@ function App() {
             return list;
           })
         };
+      case 'RESET_FORM':
+        return {
+          ...state,
+          formData: {
+            kpNumber: '',
+            kpDate: '',
+            contractNumber: '',
+            contractDate: '',
+            startDateEvent: '',
+            startTimeStartEvent: '',
+            endTimeStartEvent: '',
+            endDateEvent: '',
+            startTimeEndEvent: '',
+            endTimeEndEvent: '',
+            personsCount: '',
+            titleEvent: '',
+            logistics: '',
+            logisticsCost: '',
+            rows: []
+          }
+        };
 
       case 'UPDATE_ROW':
         setUpdatedRows([...updetedRows, action.payload.updatedRow])

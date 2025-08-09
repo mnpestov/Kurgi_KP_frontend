@@ -4,7 +4,7 @@ import { Input, Button } from "@skbkontur/react-ui";
 import "./Home.css";
 import { MainApi } from "../../utils/MainApi";
 
-function Home() {
+function Home({ dispatch }) {
   const [searchNumber, setSearchNumber] = useState("");
   const [lastKps, setLastKps] = useState([]);
 
@@ -22,6 +22,11 @@ function Home() {
       navigate(`/kp/${searchNumber.trim()}`);
     }
   };
+
+  const handleCreatNewKp = () => {
+    dispatch({ type: 'RESET_FORM' }); // очистка
+    navigate('/new');
+  }
 
   return (
     <div className="home">
@@ -83,7 +88,7 @@ function Home() {
       <div style={{ marginTop: 16 }}>
         <Button
           use="success"
-          onClick={() => navigate("/new")}
+          onClick={handleCreatNewKp}
         >
           Создать новое КП
         </Button>
