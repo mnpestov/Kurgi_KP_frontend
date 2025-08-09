@@ -11,5 +11,9 @@
   /* padding: 1.875rem; 30px */
   padding: 30px;
   background-color: lightgrey;
-  overflow-x: auto; /* Предотвращение горизонтальной прокрутки */
+  /* overflow-x: auto; */
+}
+
+.preview-page {
+  width: 900px;
 }

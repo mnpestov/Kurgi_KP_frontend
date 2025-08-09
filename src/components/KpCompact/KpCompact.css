@@ -117,6 +117,7 @@
     font-weight: 400;
     font-size: calc(0.0165 * 864px);
     align-items: end;
+    padding: 0;
 }
 
 .list__totla-cost {

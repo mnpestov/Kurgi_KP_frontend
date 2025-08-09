@@ -126,19 +126,19 @@ function Preview({
                         />
                     ))}
                 </div>
+
+
+                {/* Итоговая часть КП (Footer) с расчетом стоимости, доставкой и пр. */}
+                <Suspense fallback={<div>Загрузка Footer...</div>}>
+                    <Footer
+                        lists={listsKp}
+                        countOfPerson={formData.countOfPerson}
+                        logisticsCost={parseInt(formData.logisticsCost) || 0}
+                        isWithinMkad={formData.isWithinMkad}
+                        GetPrice={GetPrice}
+                    />
+                </Suspense>
             </div>
-
-            {/* Итоговая часть КП (Footer) с расчетом стоимости, доставкой и пр. */}
-            <Suspense fallback={<div>Загрузка Footer...</div>}>
-                <Footer
-                    lists={listsKp}
-                    countOfPerson={formData.countOfPerson}
-                    logisticsCost={parseInt(formData.logisticsCost) || 0}
-                    isWithinMkad={formData.isWithinMkad}
-                    GetPrice={GetPrice}
-                />
-            </Suspense>
-
             {/* Кнопки скачивания PDF и спецификации */}
             <div className="preview__actions">
                 <Gapped gap={16}>
