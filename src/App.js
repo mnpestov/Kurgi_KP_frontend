@@ -113,8 +113,8 @@ function App() {
             titleEvent: '',
             logistics: '',
             logisticsCost: '',
-            rows: []
-          }
+          },
+          listsKp: [], 
         };
 
       case 'UPDATE_ROW':
