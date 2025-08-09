@@ -18,7 +18,8 @@ function KpCompact({
     updateRowInDb,
     isNewKp,
     isCompact,
-    dispatch
+    dispatch,
+    getProductWeightWithMeasure
 }) {
     return (
         <>
@@ -45,7 +46,7 @@ function KpCompact({
                             </tr>
                         </thead>
                         {list.rows.map((item, index) => (
-                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} isCompact={isCompact} dispatch={dispatch} />
+                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} isCompact={isCompact} dispatch={dispatch} getProductWeightWithMeasure={getProductWeightWithMeasure} />
                         ))}
                     </table>
                 </div>

@@ -122,6 +122,7 @@ function Preview({
                             deleteRow={deleteRow}
                             deleteRowFromDb={deleteRowFromDb}
                             updateRowInDb={updateRowInDb}
+                            getProductWeightWithMeasure={getProductWeightWithMeasure}
                         />
                     ))}
                 </div>
