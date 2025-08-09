@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Button, Input, DatePicker, Switcher } from '@skbkontur/react-ui';
-import { Add } from '@skbkontur/react-icons';
+import { Add, ArrowBoldLeft } from '@skbkontur/react-icons';
+import { MainApi } from '../../utils/MainApi'
 import "./Form.css";
 import FormRow from "../FormRow/FormRow";
 import ProductPopup from "../ProductPopup/ProductPopup";
@@ -67,10 +69,34 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
     },
   };
 
+  const navigate = useNavigate();
   const [productToEdit, setProductToEdit] = useState(null);
   // Состояние для списка позиций КП (таблица)
   const [products, setProducts] = useState([]);
   const [showProductPopup, setShowProductPopup] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    MainApi.getLastKpNumber()
+      .then((res) => {
+        if (cancelled) return;
+
+        // бэк возвращает, например, "9"
+        const last = parseInt(String(res).trim(), 10);
+        const next = Number.isFinite(last) ? last + 1 : 1;
+
+        setFormData(prev => ({ ...prev, kpNumber: String(next) }));
+        setErrors(prev => ({ ...prev, kpNumber: '' }));
+      })
+      .catch((err) => {
+        console.error('Ошибка получения следующего номера КП:', err);
+        // фолбэк
+        setFormData(prev => ({ ...prev, kpNumber: '1' }));
+      });
+
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (kpNumber != null && kpNumber !== '' && kpNumber !== formData.kpNumber) {
@@ -274,6 +300,13 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
 
   return (
     <form className="form" onSubmit={handleSubmit}>
+      <Button
+        use="default"
+        icon={<ArrowBoldLeft />}
+        onClick={() => navigate('/')}
+      >
+        На главную
+      </Button>
       <h1 className="form__title">Коммерческое предложение</h1>
 
       {/* Секция: Основная информация */}

@@ -38,16 +38,6 @@ function Home() {
         </Button>
       </form>
 
-      {/* Создание нового КП */}
-      <div style={{ marginTop: 16 }}>
-        <Button
-          use="success"
-          onClick={() => navigate("/new")}
-        >
-          Создать новое КП
-        </Button>
-      </div>
-
       {/* Последние КП */}
       <div className="home__recent" style={{ marginTop: 24 }}>
         <h2 className="home__recent-title">Последние КП</h2>
@@ -88,6 +78,15 @@ function Home() {
         ) : (
           <p className="home__no-kp">Нет данных для отображения.</p>
         )}
+      </div>
+      {/* Создание нового КП */}
+      <div style={{ marginTop: 16 }}>
+        <Button
+          use="success"
+          onClick={() => navigate("/new")}
+        >
+          Создать новое КП
+        </Button>
       </div>
     </div>
   );
