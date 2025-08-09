@@ -5,9 +5,6 @@ import { Edit, Trash } from '@skbkontur/react-icons';
 import useIsMobile from '../../hooks/useIsMobile';
 
 function FormRow({
-  id,
-  number,
-  handleInputChange,
   handleRemoveProduct,
   productData,
   handleEditProduct,

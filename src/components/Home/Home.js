@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input, Button, Link as UILink } from "@skbkontur/react-ui";
+import { Input, Button } from "@skbkontur/react-ui";
 import "./Home.css";
 import { MainApi } from "../../utils/MainApi";
 
@@ -49,24 +49,6 @@ function Home() {
       </div>
 
       {/* Последние КП */}
-      {/* <div className="home__recent" style={{ marginTop: 24 }}>
-        <h2 className="home__recent-title">Последние КП</h2>
-        {lastKps.length ? (
-          <ul className="home__list" style={{ padding: 0, listStyle: "none" }}>
-            {lastKps.map(kp => (
-              <li key={kp.id} className="home__list-item" style={{ marginBottom: 8 }}>
-                <UILink
-                  onClick={() => navigate(`/kp/${kp.kpNumber}`)}
-                >
-                  <strong>{kp.kpNumber}</strong> — {kp.kpDate} — {kp.eventPlace}
-                </UILink>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="home__no-kp">Нет данных для отображения.</p>
-        )}
-      </div> */}
       <div className="home__recent" style={{ marginTop: 24 }}>
         <h2 className="home__recent-title">Последние КП</h2>
 

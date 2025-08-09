@@ -1,4 +1,3 @@
-// src/components/KpLoader/KpLoader.js
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainApi } from '../../utils/MainApi';

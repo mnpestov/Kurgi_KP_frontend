@@ -1,4 +1,3 @@
-import React from "react";
 import './Footer.css';
 import logo from '../../images/logo.png'
 
@@ -78,10 +77,6 @@ function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice })
               </span>
             )}
           </p>
-          {/* <p className="table__line tabel__line_product">
-            Выход на персону:
-            <span className="tabel__line tabel__line_composition-of-product"> еда / напитки - {(totals.byType.eat.totalWeightByPerson > 0) ? Math.round(totals.byType.eat.totalWeightByPerson) : ''}гр / {(totals.byType.drink.totalWeightByPerson > 0) ? Math.round(totals.byType.drink.totalWeightByPerson) : ''}мл</span>
-          </p> */}
           <div className="calculation">
             <ul className="totalKp">
               {totals.byType.eat && totals.byType.eat.totalPrice !== 0 && (

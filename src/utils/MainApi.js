@@ -1,5 +1,3 @@
-import { normalizeKpResponse } from '../utils/normalize';
-
 class Api {
     constructor({ baseUrl }) {
         this._baseUrl = baseUrl;

@@ -90,17 +90,6 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // const toISO = (v) => {
-  //   if (!v) return null;
-  //   if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
-  //     const [d, m, y] = v.split('.');
-  //     return `${y}-${m}-${d}`;
-  //   }
-  //   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-  //   const d = new Date(v);
-  //   return isNaN(d) ? null : d.toISOString().slice(0, 10);
-  // };
-
   const isValidDate = (v) => /^\d{2}\.\d{2}\.\d{4}$/.test(v) || /^\d{4}-\d{2}-\d{2}$/.test(v);
   const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v) && +v.slice(0, 2) < 24 && +v.slice(3, 5) < 60;
   const isPositiveInt = (v) => /^\d+$/.test(String(v)) && +v >= 1 && +v <= 99999;
@@ -248,16 +237,6 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
     setShowProductPopup(false);
   }, []);
 
-
-  // Обработчик изменения полей ввода
-  // const handleInputChange = useCallback((e) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     [name]: type === "checkbox" ? checked : (type === "radio" ? value === "true" : value)
-  //   }));
-  // }, []);
-
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target ?? e;
     handleValidatedChange(name, value);
@@ -277,23 +256,6 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
   }, []);
 
   // Отправка формы (создание нового КП)
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const dataToSend = {
-  //     ...formData,
-  //     isWithinMkad: formData.isWithinMkad ? true : false  // гарантировать булевый тип
-  //   };
-  //   // Вызов колбека или API для сохранения КП
-  //   console.log(dataToSend);
-
-  //   if (onSubmit) {
-  //     onSubmit(dataToSend);
-  //   } else {
-  //     MainApi.createKp(dataToSend)
-  //       .then(() => console.log("КП успешно создан"))
-  //       .catch(err => console.error("Ошибка при создании КП:", err));
-  //   }
-  // };
   const handleSubmit = (e) => {
     e.preventDefault();
     const { next, isValid } = validateForm(formData, listsSummary);
@@ -648,7 +610,6 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO }
 
       {/* Кнопка сохранения формы */}
       <div className="form__actions">
-        {/* <button type="submit" className="form__submit-button">Сохранить КП</button> */}
         <Button use="primary" type="submit" disabled={!isFormValidNow}>
           Сохранить КП
         </Button>

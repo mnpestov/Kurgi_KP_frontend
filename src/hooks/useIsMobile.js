@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function useIsMobile(breakpoint = 770) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);

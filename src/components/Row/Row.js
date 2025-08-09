@@ -139,8 +139,6 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                     <td className="row_count">{totalCostOfProduct || ''}</td>
                                 </>
                             )}
-                            {/* <td className="row_count">{editedData.priceOfProduct || ''}</td>
-                            <td className="row_count">{totalCostOfProduct || ''}</td> */}
                         </>
                     )}
                 </tr>

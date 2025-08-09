@@ -1,4 +1,3 @@
-import React from "react";
 import './KpCompact.css';
 import logo from '../../images/logo.png';
 import Row from '../Row/Row';
