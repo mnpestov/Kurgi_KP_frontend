@@ -41,7 +41,7 @@ function App() {
     eventPlace: '',
     countOfPerson: '',
     logisticsCost: 0,
-    isWithinMkad: null,
+    isWithinMkad: true,
     listTitle: ''
   });
 
@@ -99,20 +99,22 @@ function App() {
         return {
           ...state,
           formData: {
+
             kpNumber: '',
-            kpDate: '',
+            kpDate: new Date().toISOString().split('T')[0],
             contractNumber: '',
-            contractDate: '',
-            startDateEvent: '',
-            startTimeStartEvent: '',
-            endTimeStartEvent: '',
-            endDateEvent: '',
-            startTimeEndEvent: '',
-            endTimeEndEvent: '',
-            personsCount: '',
-            titleEvent: '',
-            logistics: '',
+            contractDate: new Date().toISOString().split('T')[0],
+            startEvent: new Date().toISOString().split('T')[0],
+            endEvent: new Date().toISOString().split('T')[0],
+            startTimeStartEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            endTimeStartEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            startTimeEndEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            endTimeEndEvent: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            eventPlace: '',
+            countOfPerson: '',
             logisticsCost: '',
+            isWithinMkad: true,
+            listTitle: ''
           },
           listsKp: [],
         };

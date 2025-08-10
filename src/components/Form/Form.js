@@ -27,7 +27,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
     eventPlace: formInfo.eventPlace,
     countOfPerson: formInfo.countOfPerson,
     listTitle: formInfo.listTitle,
-    isWithinMkad: formInfo.isWithinMkad,       // будем хранить как boolean (true/false) или "" до выбора
+    isWithinMkad: formInfo.isWithinMkad || 'true',       // будем хранить как boolean (true/false) или "" до выбора
     logisticsCost: formInfo.logisticsCost,
     managerName: formInfo.managerName,
     managerJobTitle: formInfo.managerJobTitle,
