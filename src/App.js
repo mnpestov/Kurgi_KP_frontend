@@ -114,7 +114,7 @@ function App() {
             logistics: '',
             logisticsCost: '',
           },
-          listsKp: [], 
+          listsKp: [],
         };
 
       case 'UPDATE_ROW':
@@ -396,39 +396,6 @@ function App() {
     });
   }, []);
 
-  // Обработчик смены менеджера
-  // const handleManagerChange = useCallback(({ target: { value } }) => {
-  //   const manager = value === 'true'
-  //     ? {
-  //       managerPhoto: PeterPhoto,
-  //       managerName: 'Петр Кург',
-  //       managerTel: '+7 926 966-88-71',
-  //       managerJobTitle: 'Руководитель проекта',
-  //       managerEmail: 'kurgi-bar@yandex.ru'
-  //     }
-  //     : {
-  //       managerPhoto: PavelPhoto,
-  //       managerName: 'Павел Кург',
-  //       managerTel: '+7 925 516-31-16',
-  //       managerJobTitle: 'Руководитель проекта',
-  //       managerEmail: 'kurgi-bar@yandex.ru'
-  //     };
-  //   dispatch({ type: 'UPDATE_FORM_DATA', payload: manager });
-  // }, []);
-
-  // Обработчик изменений полей формы
-  // const handleChangeInput = useCallback(({ target: { value, name } }) => {
-  //   let data
-  //   if (name === 'countOfPerson') {
-  //     data = getDeclination(value)
-  //   } else if (name === 'isWithinMkad') {
-  //     data = value === "true"
-  //   } else {
-  //     data = value
-  //   }
-  //   dispatch({ type: 'UPDATE_FORM_DATA', payload: { [name]: data } });
-  // }, [getDeclination]);
-
   // Функция экспорта в PDF
   const exportPDF = useCallback(async () => {
     await addToDb(state.formData, state.listsKp)
@@ -477,12 +444,6 @@ function App() {
     compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
   }, [state.formData, state.listsKp]);
 
-  // Функции добавления и удаления строк/списков
-  // const addRowInPdf = useCallback((newObj) => {
-  //   console.log(newObj);
-
-  //   dispatch({ type: 'ADD_ROW_IN_PDF', payload: newObj });
-  // }, []);
 
   const deleteRow = useCallback((listId, rowIndex) => {
     dispatch({ type: 'DELETE_ROW', payload: { listId, rowIndex } });
@@ -521,35 +482,25 @@ function App() {
       });
     }
   };
+  const onDeleteRow = useCallback(async (listId, rowIndex) => {
+    // локально
+    dispatch({ type: 'DELETE_ROW', payload: { listId, rowIndex } });
+    // в БД (если КП уже существует)
+    if (!isNewKp) {
+      const list = state.listsKp.find(l => l.id === listId);
+      const row = list?.rows?.[rowIndex];
+      if (row?.id) await deleteRowFromDb(row.id);
+    }
+  }, [isNewKp, state.listsKp]);
 
-  // const deleteKp = async () => {
-  //   if (isNewKp) {
-  //     const confirmClear = window.confirm('КП ещё не сохранён. Очистить форму?');
-  //     if (confirmClear) {
-  //       dispatch({ type: 'UPDATE_FORM_DATA', payload: {} });
-  //       dispatch({ type: 'UPDATE_LISTS', payload: [] });
-  //       setIsNewKp(true);
-  //     }
-  //     return;
-  //   }
-  //   if (!formData.id) {
-  //     alert('Ошибка: отсутствует ID КП для удаления.');
-  //     return;
-  //   }
-  //   const confirmDelete = window.confirm('Удалить сохранённый КП и все связанные данные?');
-  //   if (!confirmDelete) return;
-  //   try {
-  //     await MainApi.deleteKp(formData.id);
-  //     alert('КП удалён из базы данных.');
-  //     // Очистка UI
-  //     dispatch({ type: 'UPDATE_FORM_DATA', payload: getEmptyFormData() });
-  //     dispatch({ type: 'UPDATE_LISTS', payload: [] });
-  //     setIsNewKp(true);
-  //   } catch (err) {
-  //     console.error('Ошибка при удалении КП:', err);
-  //     alert('Не удалось удалить КП из базы данных.');
-  //   }
-  // };
+  const onUpdateRow = useCallback(async (listId, rowIndex, updatedRow) => {
+    // локально
+    dispatch({ type: 'UPDATE_ROW', payload: { listId, rowIndex, updatedRow } });
+    // в БД (если КП уже существует)
+    if (!isNewKp) {
+      await updateRowInDb(updatedRow);
+    }
+  }, [isNewKp]);
 
   return (
     <Routes>
@@ -576,6 +527,11 @@ function App() {
             kpNumber={formData.kpNumber}
             formInfo={formData}
             getProductWeightWithMeasure={getProductWeightWithMeasure}
+            isNewKp={isNewKp}
+            onDeleteRow={onDeleteRow}
+            onUpdateRow={onUpdateRow}
+            onAddRowOnList={addRowOnList}
+            onDeleteList={deleteList}
           />
         }
       />

@@ -141,17 +141,8 @@
 .form__add-row-button {
   margin-top: 0.5rem;
   margin-bottom: 1rem;
-  background-image: url(../../images/plus.svg);
   width: 33px;
   height: 33px;
-}
-
-.form__save-list-button {
-  background-image: url(../../images/save.svg);
-}
-
-.form__submit-button {
-  /* Кнопка сохранения выровнена вправо через контейнер .form__actions */
 }
 
 .form__submit-button:hover {
@@ -192,11 +183,9 @@
   width: 33px;
   height: 33px;
   font-size: 20px;
-  background-image: url(../../images/pencil.svg);
 }
 
 .form_button__trash {
-  background-image: url(../../images/trash-bin.svg);
   width: 33px;
   height: 33px;
 }

@@ -8,8 +8,9 @@ import FormRow from "../FormRow/FormRow";
 import ProductPopup from "../ProductPopup/ProductPopup";
 import PavelPhoto from '../../images/PavelPhoto.png';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
+import SavedListsAccordion from "../SavedListsAccordion/SavedListsAccordion";
 
-function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, getProductWeightWithMeasure }) {
+function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, getProductWeightWithMeasure, isNewKp, onDeleteRow, onUpdateRow, onAddRowOnList, onDeleteList }) {
   // Локальное состояние для полей формы КП
 
   const [formData, setFormData] = useState({
@@ -550,19 +551,30 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
       {/* Секция: Состав КП (таблица с позициями) */}
       <div className="form__section">
         <h3 className="form__section-title">Состав КП</h3>
-
+        {/* {Array.isArray(listsSummary) && listsSummary.length > 0 && (
+          <div className="form__saved-lists" style={{ marginTop: '16px' }}>
+            <h4>Сохранённые листы</h4>
+            <ul style={{ paddingLeft: '20px' }}>
+              {listsSummary.map((list, idx) => (
+                <li key={idx}>
+                  <strong>{list.listTitle || `Лист ${idx + 1}`}</strong> — позиций: {list.rows?.length || 0}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )} */}
+        {Array.isArray(listsSummary) && listsSummary.length > 0 && (
+          <SavedListsAccordion
+            lists={listsSummary}
+            isNewKp={isNewKp}              // прокинем из App
+            onDeleteRow={onDeleteRow}      // (listId, rowIndex)
+            onUpdateRow={onUpdateRow}      // (listId, rowIndex, updatedRow)
+            onAddRowOnList={onAddRowOnList}// (row, listId)
+            onDeleteList={onDeleteList}    // (listId)
+            getProductWeightWithMeasure={getProductWeightWithMeasure}
+          />
+        )}
         <div className="form__table-container">
-          {/* Заголовок таблицы */}
-          {/* <div className="form__table-header">
-            <div className="cell cell--name">Наименование</div>
-            <div className="cell cell--composition">Состав</div>
-            <div className="cell cell--weight">Вес</div>
-            <div className="cell cell--qty">Кол-во</div>
-            <div className="cell cell--price">Стоимость</div>
-            <div className="cell cell--total">Цена Итого</div>
-            <div className="cell cell--edit"></div>
-            <div className="cell cell--delete"></div>
-          </div> */}
 
           {/* Ряды таблицы */}
           {products.map((prod) => (
@@ -610,24 +622,11 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               }
               setProducts([]);         // очистим текущий временный лист
               setProductToEdit(null);  // сброс редактируемого продукта, если был
-              alert('Лист сохранён');
             }}
           >
             Сохранить лист
           </Button>
         </div>
-        {Array.isArray(listsSummary) && listsSummary.length > 0 && (
-          <div className="form__saved-lists" style={{ marginTop: '16px' }}>
-            <h4>Сохранённые листы</h4>
-            <ul style={{ paddingLeft: '20px' }}>
-              {listsSummary.map((list, idx) => (
-                <li key={idx}>
-                  <strong>{list.listTitle || `Лист ${idx + 1}`}</strong> — позиций: {list.rows?.length || 0}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {/* Попап */}
         {showProductPopup && (
