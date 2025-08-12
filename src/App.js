@@ -258,7 +258,7 @@ function App() {
 
   const addToDb = async (formData, listsKp, updatedRows = []) => {
     console.log(formData);
-    
+
     if (isNewKp) {
       try {
         // 1) нормализуем шапку КП по датам
@@ -442,32 +442,135 @@ function App() {
   }, []);
 
   // Функция экспорта в PDF
+  // const exportPDF = useCallback(async () => {
+  //   // await addToDb(state.formData, state.listsKp)
+  //   setIsNewKp(false)
+  //   const pdf = new jsPDF("landscape", "mm", "a4");
+  //   const lists = document.querySelectorAll(".list");
+  //   for (const [index, list] of lists.entries()) {
+  //     const canvas = await html2canvas(list, { scale: 2 });
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  //     if (index !== 0) pdf.addPage();
+  //     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  //   }
+  //   pdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
+  // }, [state.formData, state.listsKp]);
   const exportPDF = useCallback(async () => {
-    // await addToDb(state.formData, state.listsKp)
-    setIsNewKp(false)
+    // сохраняем режим редактирования как существующий КП (как было)
+    setIsNewKp(false);
+
+    // A4 landscape в мм
+    const A4_WIDTH_MM = 297;
+    const A4_HEIGHT_MM = 210;
+
+    // Целевая «плотность» для растрового кадра (200 dpi даёт отличное качество печати)
+    const TARGET_DPI = 200;
+    const MM_PER_INCH = 25.4;
+    const targetPxWidth = Math.round((A4_WIDTH_MM / MM_PER_INCH) * TARGET_DPI); // ~2338px
+
+    // Хелпер: даунскейл холст до targetPxWidth и верни JPEG dataURL
+    const canvasToJPEG = (srcCanvas, maxWidthPx = targetPxWidth, quality = 0.85) => {
+      const { width, height } = srcCanvas;
+      // если ширина и так меньше лимита — просто конвертируем
+      if (width <= maxWidthPx) {
+        return srcCanvas.toDataURL("image/jpeg", quality);
+      }
+      const scale = maxWidthPx / width;
+      const dst = document.createElement("canvas");
+      dst.width = Math.round(width * scale);
+      dst.height = Math.round(height * scale);
+      const ctx = dst.getContext("2d");
+      // чуть лучше ресемплинг
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
+      return dst.toDataURL("image/jpeg", quality);
+    };
+
     const pdf = new jsPDF("landscape", "mm", "a4");
     const lists = document.querySelectorAll(".list");
-    for (const [index, list] of lists.entries()) {
-      const canvas = await html2canvas(list, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      if (index !== 0) pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    for (const [index, list] of lists.entries()) {
+      // scale=2 оставляем для чёткости рендеринга шрифтов и линий
+      const canvas = await html2canvas(list, { scale: 2 });
+
+      // Конвертация и сжатие: PNG -> JPEG + кап по пиксельной ширине
+      const imgData = canvasToJPEG(canvas, targetPxWidth, 0.85);
+
+      // Поддерживаем пропорции: ширина по всей странице, высота — по аспекту
+      const imgWidthMm = A4_WIDTH_MM;
+      const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
+
+      if (index !== 0) pdf.addPage("a4", "landscape");
+      pdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, Math.min(imgHeightMm, A4_HEIGHT_MM));
     }
+
     pdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
   }, [state.formData, state.listsKp]);
 
+
+  // const downloadSpec = useCallback(async () => {
+  //   // === Второй PDF (без цен) ===
+  //   const compactPdf = new jsPDF("landscape", "mm", "a4");
+  //   const listsCompact = document.querySelectorAll(".listCompact");
+
+  //   for (const [index, list] of listsCompact.entries()) {
+  //     const canvas = await html2canvas(list, {
+  //       scale: 2,
+  //       // useCORS: true, // если логотипы или изображения грузятся по URL
+  //       onclone: (clonedDoc) => {
+  //         const clonedList = clonedDoc.querySelectorAll(".listCompact")[index];
+  //         if (clonedList) {
+  //           clonedList.style.visibility = "visible";
+  //           clonedList.style.position = "static";
+  //           clonedList.style.zIndex = "auto";
+  //         }
+  //       }
+  //     });
+
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  //     if (index !== 0) compactPdf.addPage();
+  //     compactPdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  //   }
+
+  //   compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
+  // }, [state.formData, state.listsKp]);
+
   const downloadSpec = useCallback(async () => {
-    // === Второй PDF (без цен) ===
+    const A4_WIDTH_MM = 297;
+    const A4_HEIGHT_MM = 210;
+    const TARGET_DPI = 200;
+    const MM_PER_INCH = 25.4;
+    const targetPxWidth = Math.round((A4_WIDTH_MM / MM_PER_INCH) * TARGET_DPI); // ≈2338px
+
+    const canvasToJPEG = (srcCanvas, maxWidthPx = targetPxWidth, quality = 0.85) => {
+      const { width, height } = srcCanvas;
+      if (width <= maxWidthPx) {
+        return srcCanvas.toDataURL("image/jpeg", quality);
+      }
+      const scale = maxWidthPx / width;
+      const dst = document.createElement("canvas");
+      dst.width = Math.round(width * scale);
+      dst.height = Math.round(height * scale);
+      const ctx = dst.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
+      return dst.toDataURL("image/jpeg", quality);
+    };
+
     const compactPdf = new jsPDF("landscape", "mm", "a4");
     const listsCompact = document.querySelectorAll(".listCompact");
 
     for (const [index, list] of listsCompact.entries()) {
       const canvas = await html2canvas(list, {
         scale: 2,
-        // useCORS: true, // если логотипы или изображения грузятся по URL
         onclone: (clonedDoc) => {
           const clonedList = clonedDoc.querySelectorAll(".listCompact")[index];
           if (clonedList) {
@@ -478,16 +581,17 @@ function App() {
         }
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 297; // Ширина A4 в мм (альбомная ориентация)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvasToJPEG(canvas, targetPxWidth, 0.85);
+      const imgWidthMm = A4_WIDTH_MM;
+      const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
 
-      if (index !== 0) compactPdf.addPage();
-      compactPdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      if (index !== 0) compactPdf.addPage("a4", "landscape");
+      compactPdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, Math.min(imgHeightMm, A4_HEIGHT_MM));
     }
 
     compactPdf.save(`Спецификация к КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
   }, [state.formData, state.listsKp]);
+
 
 
   const deleteRow = useCallback((listId, rowIndex) => {
