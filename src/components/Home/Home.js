@@ -4,7 +4,7 @@ import { Input, Button } from "@skbkontur/react-ui";
 import "./Home.css";
 import { MainApi } from "../../utils/MainApi";
 
-function Home({ dispatch }) {
+function Home({ dispatch, setIsNewKp }) {
   const [searchNumber, setSearchNumber] = useState("");
   const [lastKps, setLastKps] = useState([]);
 
@@ -25,6 +25,7 @@ function Home({ dispatch }) {
 
   const handleCreatNewKp = () => {
     dispatch({ type: 'RESET_FORM' }); // очистка
+    setIsNewKp(true)
     navigate('/new');
   }
 

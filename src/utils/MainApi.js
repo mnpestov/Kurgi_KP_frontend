@@ -38,6 +38,17 @@ class Api {
             .then(this._checkResponse);
     }
 
+        updateKp(formData, kpNumber) {
+        return fetch(`${this._baseUrl}/kp/${kpNumber}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(this._checkResponse);
+    }
+
     deleteKp(id) {
         return fetch(`${this._baseUrl}/kp/${id}`, {
             method: 'DELETE'

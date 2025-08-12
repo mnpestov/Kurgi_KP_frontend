@@ -25,7 +25,8 @@ function Kp({
     isNewKp,
     addRowOnList,
     dispatch,
-    getProductWeightWithMeasure
+    getProductWeightWithMeasure,
+    getDeclination
 }) {
     const [showPopup, setShowPopup] = useState(false);
     const totalCost = list.rows.map((item) => {
@@ -52,7 +53,7 @@ function Kp({
                             <tr className="table__row table__titles">
                                 <th className="table__title list__subtitle-container">
                                     <p className="list__subtitle list__subtitle_place">место: <span className="list__subtitle_text">{`${eventPlace}`}</span></p>
-                                    <p className="list__subtitle list__subtitle_person">кол-во персон: <span className="list__subtitle_text">{`${countOfPerson}`}</span></p>
+                                    <p className="list__subtitle list__subtitle_person">кол-во персон: <span className="list__subtitle_text">{`${getDeclination(countOfPerson)}`}</span></p>
                                     <div className="list__subtitle_time">
                                         <p className="list__subtitle list__subtitle_time_text">время мероприятия: </p>
                                         <p>

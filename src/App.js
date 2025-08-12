@@ -63,7 +63,10 @@ function App() {
       case 'UPDATE_LISTS':
         return {
           ...state,
-          listsKp: action.payload
+          listsKp: action.payload.map(list => ({
+            ...list,
+            rows: [...(list.rows || [])].sort((a, b) => (a.order - b.order) || ((a.id ?? 0) - (b.id ?? 0))),
+          })),
         };
       case 'ADD_ROW_IN_PDF':
         return {
@@ -82,19 +85,32 @@ function App() {
           })
         };
 
-      case 'ADD_ROW_ON_LIST':
+      case 'ADD_ROW_ON_LIST': {
+        const { listId, row } = action.payload;
         return {
           ...state,
-          listsKp: state.listsKp.map(list => {
-            if (list.id === action.payload.listId) {
-              return {
-                ...list,
-                rows: [...list.rows, action.payload.row]
-              };
-            }
-            return list;
-          })
+          listsKp: state.listsKp.map((l) => {
+            if (l.id !== listId) return l;
+            const rows = [...(l.rows || []), row];
+            // (опционально) жёстко удерживаем порядок по order
+            rows.sort((a, b) => (a.order - b.order) || ((a.id ?? 0) - (b.id ?? 0)));
+            return { ...l, rows };
+          }),
         };
+      }
+      // case 'ADD_ROW_ON_LIST':
+      //   return {
+      //     ...state,
+      //     listsKp: state.listsKp.map(list => {
+      //       if (list.id === action.payload.listId) {
+      //         return {
+      //           ...list,
+      //           rows: [...list.rows, action.payload.row]
+      //         };
+      //       }
+      //       return list;
+      //     })
+      //   };
       case 'RESET_FORM':
         return {
           ...state,
@@ -128,7 +144,15 @@ function App() {
               return {
                 ...list,
                 rows: list.rows.map((row, index) =>
-                  index === action.payload.rowIndex ? action.payload.updatedRow : row
+                  index === action.payload.rowIndex
+                    ? {
+                      ...row,
+                      ...action.payload.updatedRow,
+                      order: Number.isInteger(action.payload.updatedRow?.order)
+                        ? action.payload.updatedRow.order
+                        : row.order,
+                    }
+                    : row
                 )
               };
             }
@@ -233,6 +257,8 @@ function App() {
   }, []);
 
   const addToDb = async (formData, listsKp, updatedRows = []) => {
+    console.log(formData);
+    
     if (isNewKp) {
       try {
         // 1) нормализуем шапку КП по датам
@@ -262,11 +288,24 @@ function App() {
                 kpId: kpRes.id,
               });
 
+              // let createdRows = [];
+              // if (list.rows?.length > 0) {
+              //   createdRows = await Promise.all(
+              //     list.rows.map(row =>
+              //       MainApi.addRow({ ...row, listId: listRes.id })
+              //     )
+              //   );
+              // }
               let createdRows = [];
               if (list.rows?.length > 0) {
                 createdRows = await Promise.all(
-                  list.rows.map(row =>
-                    MainApi.addRow({ ...row, listId: listRes.id })
+                  list.rows.map((row, i) =>
+                    MainApi.addRow({
+                      ...row,
+                      listId: listRes.id,
+                      // если локально уже есть order — уважим его, иначе индекс
+                      order: Number.isInteger(row.order) ? row.order : i,
+                    })
                   )
                 );
               }
@@ -299,11 +338,15 @@ function App() {
     } else {
       // Редактирование существующего КП: обновляем изменённые строки
       try {
-        if (updatedRows?.length > 0) {
-          await Promise.all(
-            updatedRows.map(row => MainApi.updateRow(row))
-          );
-          console.log('✅ Строки обновлены');
+        console.log('update');
+        console.log(formData.kpNumber);
+
+        const updatedKp = await MainApi.updateKp(formData, formData.kpNumber)
+        console.log('✅ Данные коммерческого предложения обновлены');
+        console.log(updatedKp?.kp.kpNumber);
+
+        if (updatedKp?.kp.kpNumber) {
+          navigate(`/kp/${updatedKp.kp.kpNumber}`);
         }
       } catch (err) {
         console.error('Ошибка при обновлении строк:', err);
@@ -456,34 +499,65 @@ function App() {
     if (!isNewKp) deleteListFromDb(id);
   }, [isNewKp]);
 
+  // const addRowOnList = async (row, listId) => {
+  //   const rowWithListId = {
+  //     ...row,
+  //     listId,
+  //   };
+
+  //   if (!isNewKp) {
+  //     try {
+  //       // Добавляем строку в БД
+  //       const savedRow = await MainApi.addRow(rowWithListId);
+
+  //       // Обновляем состояние с ID из базы
+  //       dispatch({
+  //         type: 'ADD_ROW_ON_LIST',
+  //         payload: { row: savedRow, listId }
+  //       });
+  //     } catch (error) {
+  //       console.error("Ошибка при добавлении строки в БД:", error);
+  //     }
+  //   } else {
+  //     // Добавляем строку локально (новый КП ещё не сохранён)
+  //     const tempRow = { ...rowWithListId, id: Date.now() };
+  //     dispatch({
+  //       type: 'ADD_ROW_ON_LIST',
+  //       payload: { row: tempRow, listId }
+  //     });
+  //   }
+  // };
+
   const addRowOnList = async (row, listId) => {
-    const rowWithListId = {
+    // найдём список, чтобы понять текущую длину
+    const list = state.listsKp.find((l) => l.id === listId);
+    const nextOrder = (list?.rows?.length ?? 0);
+    const rowWithListIdAndOrder = {
       ...row,
       listId,
+      order: Number.isInteger(row.order) ? row.order : nextOrder,
     };
 
     if (!isNewKp) {
       try {
-        // Добавляем строку в БД
-        const savedRow = await MainApi.addRow(rowWithListId);
-
-        // Обновляем состояние с ID из базы
+        const savedRow = await MainApi.addRow(rowWithListIdAndOrder);
         dispatch({
           type: 'ADD_ROW_ON_LIST',
-          payload: { row: savedRow, listId }
+          payload: { row: savedRow, listId },
         });
       } catch (error) {
-        console.error("Ошибка при добавлении строки в БД:", error);
+        console.error('Ошибка при добавлении строки в БД:', error);
       }
     } else {
-      // Добавляем строку локально (новый КП ещё не сохранён)
-      const tempRow = { ...rowWithListId, id: Date.now() };
+      // Черновик: пока нет id из БД — сгенерируем временный
+      const tempRow = { ...rowWithListIdAndOrder, id: Date.now() };
       dispatch({
         type: 'ADD_ROW_ON_LIST',
-        payload: { row: tempRow, listId }
+        payload: { row: tempRow, listId },
       });
     }
   };
+
   const onDeleteRow = useCallback(async (listId, rowIndex) => {
     // локально
     dispatch({ type: 'DELETE_ROW', payload: { listId, rowIndex } });
@@ -561,6 +635,7 @@ function App() {
             downloadPDF={exportPDF}
             downloadSpec={downloadSpec}
             getProductWeightWithMeasure={getProductWeightWithMeasure}
+            getDeclination={getDeclination}
           />
         }
       />

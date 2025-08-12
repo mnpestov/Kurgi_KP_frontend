@@ -10,7 +10,20 @@ import PavelPhoto from '../../images/PavelPhoto.png';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
 import SavedListsAccordion from "../SavedListsAccordion/SavedListsAccordion";
 
-function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, getProductWeightWithMeasure, isNewKp, onDeleteRow, onUpdateRow, onAddRowOnList, onDeleteList }) {
+function Form({
+  onSubmit,
+  kpNumber,
+  formInfo,
+  addList,
+  listsSummary,
+  dateToISO,
+  getProductWeightWithMeasure,
+  isNewKp,
+  onDeleteRow,
+  onUpdateRow,
+  onAddRowOnList,
+  onDeleteList,
+}) {
   // Локальное состояние для полей формы КП
 
   const [formData, setFormData] = useState({
@@ -77,6 +90,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
   const [showProductPopup, setShowProductPopup] = useState(false);
 
   useEffect(() => {
+    if (!isNewKp) return;
     let cancelled = false;
 
     MainApi.getLastKpNumber()
@@ -97,7 +111,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
       });
 
     return () => { cancelled = true; };
-  }, []);
+  }, [isNewKp]);
 
   useEffect(() => {
     if (kpNumber != null && kpNumber !== '' && kpNumber !== formData.kpNumber) {
@@ -298,6 +312,30 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
       console.error('onSubmit не передан в Form');
     }
   };
+  function toDDMMYYYY(input) {
+  if (!input) return '';
+
+  // Если это объект Date
+  if (input instanceof Date && !isNaN(input)) {
+    const day = String(input.getDate()).padStart(2, '0');
+    const month = String(input.getMonth() + 1).padStart(2, '0');
+    const year = input.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  // Если строка YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    const [year, month, day] = input.split('-');
+    return `${day}.${month}.${year}`;
+  }
+
+  // Если уже DD.MM.YYYY
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(input)) {
+    return input;
+  }
+
+  return '';
+}
 
   return (
     <form className="form" onSubmit={handleSubmit}>
@@ -320,7 +358,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               id="kpNumber"
               name="kpNumber"
               className={`form__input ${errors.kpNumber ? 'error' : ''}`}
-              value={formData.kpNumber}
+              value={(isNewKp) ? formData.kpNumber : formInfo.kpNumber}
               onValueChange={value => handleInputChange({ target: { name: 'kpNumber', value } })}
             />
           </div>
@@ -330,7 +368,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               id="kpDate"
               name="kpDate"
               className={`form__input ${errors.kpDate ? 'error' : ''}`}
-              value={formData.kpDate}
+              value={(isNewKp) ? toDDMMYYYY(formData.kpDate) : toDDMMYYYY(formInfo.kpDate)}
               onValueChange={value => handleInputChange({ target: { name: 'kpDate', value } })}
             />
           </div>
@@ -350,7 +388,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               id="contractDate"
               name="contractDate"
               className={`form__input ${errors.contractDate ? 'error' : ''}`}
-              value={formData.contractDate}
+              value={(isNewKp) ? toDDMMYYYY(formData.contractDate) : toDDMMYYYY(formInfo.contractDate)}
               onValueChange={value => handleInputChange({ target: { name: 'contractDate', value } })}
             />
           </div>
@@ -368,7 +406,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               id="startEvent"
               name="startEvent"
               className={`form__input ${errors.startEvent ? 'error' : ''}`}
-              value={formData.startEvent}
+              value={(isNewKp) ? toDDMMYYYY(formData.startEvent) : toDDMMYYYY(formInfo.startEvent)}
               onValueChange={value => handleInputChange({ target: { name: 'startEvent', value } })}
             />
           </div>
@@ -408,7 +446,7 @@ function Form({ onSubmit, kpNumber, formInfo, addList, listsSummary, dateToISO, 
               id="endEvent"
               name="endEvent"
               className={`form__input ${errors.endEvent ? 'error' : ''}`}
-              value={formData.endEvent}
+              value={(isNewKp) ? toDDMMYYYY(formData.endEvent) : toDDMMYYYY(formInfo.endEvent)}
               onValueChange={value => handleInputChange({ target: { name: 'endEvent', value } })}
             />
             {!isDatesValid && (

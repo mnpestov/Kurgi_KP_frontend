@@ -24,7 +24,8 @@ function Preview({
     GetPrice,
     downloadPDF,
     downloadSpec,
-    getProductWeightWithMeasure
+    getProductWeightWithMeasure,
+    getDeclination
 }) {
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
@@ -56,6 +57,14 @@ function Preview({
             >
                 На главную
             </Button>
+            
+            {/* <Button
+                use="default"
+                icon={<ArrowBoldLeft />}
+                onClick={() => navigate('/new')}
+            >
+                Назад к редактированию
+            </Button> */}
 
             <div className="preview">
                 {/* Шапка КП */}
@@ -95,6 +104,7 @@ function Preview({
                         dispatch={dispatch}
                         GetPrice={GetPrice}
                         getProductWeightWithMeasure={getProductWeightWithMeasure}
+                        getDeclination={getDeclination}
                     />
                 ))}
 
