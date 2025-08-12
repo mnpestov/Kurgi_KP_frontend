@@ -443,7 +443,7 @@ function App() {
 
   // Функция экспорта в PDF
   const exportPDF = useCallback(async () => {
-    await addToDb(state.formData, state.listsKp)
+    // await addToDb(state.formData, state.listsKp)
     setIsNewKp(false)
     const pdf = new jsPDF("landscape", "mm", "a4");
     const lists = document.querySelectorAll(".list");
