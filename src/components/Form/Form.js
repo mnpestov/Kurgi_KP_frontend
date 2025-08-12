@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, DatePicker, Switcher } from '@skbkontur/react-ui';
+import { Button, Input, DatePicker } from '@skbkontur/react-ui';
 import { Add, ArrowBoldLeft } from '@skbkontur/react-icons';
 import { MainApi } from '../../utils/MainApi'
 import "./Form.css";
@@ -9,6 +9,7 @@ import ProductPopup from "../ProductPopup/ProductPopup";
 import PavelPhoto from '../../images/PavelPhoto.png';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
 import SavedListsAccordion from "../SavedListsAccordion/SavedListsAccordion";
+import Switcher from "../Switcher/Switcher";
 
 function Form({
   onSubmit,
@@ -313,29 +314,29 @@ function Form({
     }
   };
   function toDDMMYYYY(input) {
-  if (!input) return '';
+    if (!input) return '';
 
-  // Если это объект Date
-  if (input instanceof Date && !isNaN(input)) {
-    const day = String(input.getDate()).padStart(2, '0');
-    const month = String(input.getMonth() + 1).padStart(2, '0');
-    const year = input.getFullYear();
-    return `${day}.${month}.${year}`;
+    // Если это объект Date
+    if (input instanceof Date && !isNaN(input)) {
+      const day = String(input.getDate()).padStart(2, '0');
+      const month = String(input.getMonth() + 1).padStart(2, '0');
+      const year = input.getFullYear();
+      return `${day}.${month}.${year}`;
+    }
+
+    // Если строка YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+      const [year, month, day] = input.split('-');
+      return `${day}.${month}.${year}`;
+    }
+
+    // Если уже DD.MM.YYYY
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(input)) {
+      return input;
+    }
+
+    return '';
   }
-
-  // Если строка YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
-    const [year, month, day] = input.split('-');
-    return `${day}.${month}.${year}`;
-  }
-
-  // Если уже DD.MM.YYYY
-  if (/^\d{2}\.\d{2}\.\d{4}$/.test(input)) {
-    return input;
-  }
-
-  return '';
-}
 
   return (
     <form className="form" onSubmit={handleSubmit}>
@@ -355,6 +356,7 @@ function Form({
           <div className="form__field">
             <label className="form__label" htmlFor="kpNumber">Номер КП</label>
             <Input
+              width="100%"
               id="kpNumber"
               name="kpNumber"
               className={`form__input ${errors.kpNumber ? 'error' : ''}`}
@@ -375,6 +377,7 @@ function Form({
           <div className="form__field">
             <label className="form__label" htmlFor="contractNumber">№ договора</label>
             <Input
+              width="100%"
               id="contractNumber"
               name="contractNumber"
               className={`form__input ${errors.contractNumber ? 'error' : ''}`}
@@ -488,6 +491,7 @@ function Form({
           <div className="form__field">
             <label className="form__label" htmlFor="eventPlace">Место проведения</label>
             <Input
+              width="100%"
               id="eventPlace"
               name="eventPlace"
               value={formData.eventPlace}
@@ -499,6 +503,7 @@ function Form({
           <div className="form__field">
             <label className="form__label" htmlFor="countOfPerson">Кол-во персон</label>
             <Input
+              width="100%"
               type="number"
               id="countOfPerson"
               name="countOfPerson"
@@ -511,6 +516,7 @@ function Form({
           <div className="form__field form__field--full">
             <label className="form__label" htmlFor="listTitle">Название мероприятия</label>
             <Input
+              width="100%"
               id="listTitle"
               name="listTitle"
               className={`form__input ${errors.listTitle ? 'error' : ''}`}
@@ -525,22 +531,20 @@ function Form({
       {/* Секция: Логистика */}
       <div className="form__section">
         <h3 className="form__section-title">Логистика</h3>
-        <div className="form__fields">
-
+        <div className="form__fields form__field_logistic">
           <div className="form__field">
-            <label className="form__label">В пределах МКАД?</label>
+            <label className="form__label">За пределами МКАД?</label>
             <Switcher
-              value={formData.isWithinMkad === true ? 'true' : 'false'}
-              items={[
-                { value: 'true', label: 'Да' },
-                { value: 'false', label: 'Нет' },
+              ariaLabel="В пределах МКАД"
+              name="isWithinMkad"
+              value={formData.isWithinMkad ? "true" : "false"}
+              options={[
+                { value: "true", label: "Да" },
+                { value: "false", label: "Нет" },
               ]}
-              onValueChange={(value) =>
+              onChange={(val) =>
                 handleInputChange({
-                  target: {
-                    name: 'isWithinMkad',
-                    value: value === 'true',
-                  },
+                  target: { name: "isWithinMkad", value: val === "true" },
                 })
               }
             />
@@ -548,11 +552,10 @@ function Form({
 
           <div className="form__field">
             <label className="form__label" htmlFor="logisticsCost">
-              {formData.isWithinMkad
-                ? 'Стоимость доставки в пределах МКАД'
-                : 'Стоимость логистики за МКАД'}
+              Стоимость логистики
             </label>
             <Input
+              width="100%"
               type="number"
               id="logisticsCost"
               name="logisticsCost"
@@ -575,13 +578,16 @@ function Form({
         <div className="form__fields">
           <div className="form__field form__field--full">
             <Switcher
-              value={formData.manager || 'peter'}
-              items={[
-                { value: 'peter', label: 'Петр' },
+              ariaLabel="Ответственный менеджер"
+              name="manager"
+              value={formData.manager || 'peter'} // или как у вас хранится
+              options={[
+                { value: 'peter', label: "Пётр" },
                 { value: 'pavel', label: 'Павел' },
               ]}
-              onValueChange={handleManagerChange}
+              onChange={handleManagerChange}
             />
+
           </div>
         </div>
       </div>
@@ -589,18 +595,6 @@ function Form({
       {/* Секция: Состав КП (таблица с позициями) */}
       <div className="form__section">
         <h3 className="form__section-title">Состав КП</h3>
-        {/* {Array.isArray(listsSummary) && listsSummary.length > 0 && (
-          <div className="form__saved-lists" style={{ marginTop: '16px' }}>
-            <h4>Сохранённые листы</h4>
-            <ul style={{ paddingLeft: '20px' }}>
-              {listsSummary.map((list, idx) => (
-                <li key={idx}>
-                  <strong>{list.listTitle || `Лист ${idx + 1}`}</strong> — позиций: {list.rows?.length || 0}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )} */}
         {Array.isArray(listsSummary) && listsSummary.length > 0 && (
           <SavedListsAccordion
             lists={listsSummary}
@@ -630,13 +624,7 @@ function Form({
         </div>
 
         {/* Кнопки управления */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          flexWrap: 'wrap',
-          gap: '12px',
-          marginTop: '16px'
-        }}>
+        <div className='form__table-button'>
           <Button
             icon={<Add />}
             use="default"

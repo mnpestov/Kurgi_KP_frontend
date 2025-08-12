@@ -1,0 +1,66 @@
+.fws {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+/* Кнопка-сегмент */
+.fws__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    border: 1px solid #AAAAAA;
+    border-radius: 10px;
+    background: #fff;
+    color: #222;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+    text-align: center;
+}
+.fws__item:hover { border-color: #bfbfbf; }
+
+/* Состояние выбранного */
+.fws__item.is-active {
+  background: #333333;
+  color: #fff;
+}
+
+/* Не даём контенту «выпирать» и плодить горизонтальный скролл */
+.fws__label {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Прячем нативный radio, но оставляем доступность */
+.fws__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Фокус-кольцо по клавиатуре */
+.fws__input:focus-visible + .fws__label,
+.fws__item:has(.fws__input:focus-visible) {
+  outline: 2px solid #3b82f6;   /* синий */
+  outline-offset: 2px;
+  border-color: #3b82f6;
+}
+
+/* Disabled */
+.fws__item.is-disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 420px) {
+  /* .fws__item { min-height: 40px; padding: 8px 6px; } */
+}

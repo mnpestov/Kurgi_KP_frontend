@@ -7,13 +7,6 @@ p {
     display: flex;
 }
 
-.form {
-    display: flex;
-    flex-direction: column;
-    min-width: 432px;
-    gap: 8.64px;
-}
-
 .preview {
     box-sizing: border-box;
     padding: 20.16px;

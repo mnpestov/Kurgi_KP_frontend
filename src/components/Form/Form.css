@@ -3,6 +3,9 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8.64px;
 }
 
 .form__title {
@@ -22,7 +25,7 @@
 }
 
 .form__section-title {
-  font-size: 1.1rem;
+  font-size: 20px;
   margin: 0 0 0.5rem;
   color: #222;
 }
@@ -35,6 +38,14 @@
   /* горизонтальный и вертикальный отступ между полями */
 }
 
+.form__table-button {
+  display: grid;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
 @media (max-width: 600px) {
   .form__fields {
     grid-template-columns: 1fr;
@@ -45,6 +56,10 @@
 .form__field {
   display: flex;
   flex-direction: column;
+}
+
+.form__field_logistic {
+  grid-template-columns: 1fr 1fr;
 }
 
 .form__field__time {
@@ -62,6 +77,7 @@
 .form__label {
   font-weight: 600;
   margin-bottom: 0.3rem;
+  font-size: 12.5px;
 }
 
 .form__input {
@@ -153,6 +169,7 @@
 
 .form__actions {
   text-align: right;
+  display: grid;
 }
 
 .form__table-container {
