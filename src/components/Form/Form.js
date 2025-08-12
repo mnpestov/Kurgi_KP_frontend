@@ -354,7 +354,7 @@ function Form({
         <h3 className="form__section-title">Основная информация</h3>
         <div className="form__fields">
           <div className="form__field">
-            <label className="form__label" htmlFor="kpNumber">Номер КП</label>
+            <label className="form__label" htmlFor="kpNumber">Номер коммерческого предложения</label>
             <Input
               width="100%"
               id="kpNumber"
@@ -365,7 +365,7 @@ function Form({
             />
           </div>
           <div className="form__field">
-            <label className="form__label" htmlFor="kpDate">Дата КП</label>
+            <label className="form__label" htmlFor="kpDate">Дата коммерческого предложения</label>
             <DatePicker
               id="kpDate"
               name="kpDate"
@@ -669,8 +669,8 @@ function Form({
 
       {/* Кнопка сохранения формы */}
       <div className="form__actions">
-        <Button use="primary" type="submit" disabled={!isFormValidNow}>
-          Сохранить КП
+        <Button use="success" type="submit" disabled={!isFormValidNow}>
+          Сохранить коммерческое предложение
         </Button>
       </div>
     </form>

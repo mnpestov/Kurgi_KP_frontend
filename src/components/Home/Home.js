@@ -46,13 +46,13 @@ function Home({ dispatch, setIsNewKp }) {
 
       {/* Последние КП */}
       <div className="home__recent" style={{ marginTop: 24 }}>
-        <h2 className="home__recent-title">Последние КП</h2>
+        <h2 className="home__recent-title">Последние коммерческие предложения</h2>
 
         {Array.isArray(lastKps) && lastKps.length > 0 ? (
           <div className="home__table">
             {/* Заголовки */}
             <div className="home__table-row home__table-header">
-              <div className="home__table-cell">Номер КП</div>
+              <div className="home__table-cell">Номер</div>
               <div className="home__table-cell">Дата мероприятия</div>
               <div className="home__table-cell">Место мероприятия</div>
             </div>
@@ -88,6 +88,7 @@ function Home({ dispatch, setIsNewKp }) {
       {/* Создание нового КП */}
       <div style={{ marginTop: 16 }}>
         <Button
+          width="100%"
           use="success"
           onClick={handleCreatNewKp}
         >
