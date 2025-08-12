@@ -37,7 +37,7 @@ function Home({ dispatch, setIsNewKp }) {
           placeholder="Номер КП..."
           value={searchNumber}
           onValueChange={setSearchNumber}
-          width="200px"
+          width="100%"
         />
         <Button use="primary" type="submit">
           Поиск

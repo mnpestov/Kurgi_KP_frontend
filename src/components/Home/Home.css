@@ -44,7 +44,7 @@ body {
 }
 .home__table {
   display: grid;
-  grid-template-columns: 150px 180px 1fr; /* ширина колонок */
+  grid-template-columns: min-content min-content 1fr; /* ширина колонок */
   gap: 4px 12px; /* отступы между строками и колонками */
 }
 
