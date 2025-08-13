@@ -6,7 +6,7 @@ import { MainApi } from '../../utils/MainApi'
 import "./Form.css";
 import FormRow from "../FormRow/FormRow";
 import ProductPopup from "../ProductPopup/ProductPopup";
-import PavelPhoto from '../../images/PavelPhoto.png';
+import PavelPhoto from '../../images/PavelPhoto.jpg';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
 import SavedListsAccordion from "../SavedListsAccordion/SavedListsAccordion";
 import Switcher from "../Switcher/Switcher";

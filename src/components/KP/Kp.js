@@ -28,6 +28,7 @@ function Kp({
     getProductWeightWithMeasure,
     getDeclination
 }) {
+    
     const [showPopup, setShowPopup] = useState(false);
     const totalCost = list.rows.map((item) => {
         return item.countOfProduct * item.priceOfProduct;

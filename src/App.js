@@ -4,7 +4,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Form from './components/Form/Form';
-import PavelPhoto from './images/PavelPhoto.png';
+import PavelPhoto from './images/PavelPhoto.jpg';
 import PeterPhoto from './images/PeterPhoto.jpg';
 import { MainApi } from './utils/MainApi'
 import Home from './components/Home/Home';

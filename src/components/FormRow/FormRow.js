@@ -1,6 +1,6 @@
 import React from "react";
 import './FormRow.css';
-import { Input, Button } from '@skbkontur/react-ui';
+import { Button } from '@skbkontur/react-ui';
 import { Edit, Trash } from '@skbkontur/react-icons';
 import useIsMobile from '../../hooks/useIsMobile';
 

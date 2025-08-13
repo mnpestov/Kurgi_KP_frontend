@@ -1,5 +1,5 @@
 import PeterPhoto from '../images/PeterPhoto.jpg';
-import PavelPhoto from '../images/PavelPhoto.png';
+import PavelPhoto from '../images/PavelPhoto.jpg';
 
 export const MANAGERS = {
   peter: {

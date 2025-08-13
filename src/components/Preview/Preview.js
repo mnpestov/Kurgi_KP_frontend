@@ -1,4 +1,3 @@
-// src/components/Preview/Preview.js
 import React, { useRef, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Gapped } from '@skbkontur/react-ui';
@@ -26,7 +25,7 @@ function Preview({
     downloadSpec,
     getProductWeightWithMeasure,
     getDeclination
-}) {
+}) {    
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
 
@@ -58,13 +57,13 @@ function Preview({
                 На главную
             </Button>
             
-            <Button
+            {/* <Button
                 use="default"
                 icon={<ArrowBoldLeft />}
                 onClick={() => navigate('/new')}
             >
                 Назад к редактированию
-            </Button>
+            </Button> */}
 
             <div className="preview">
                 {/* Шапка КП */}

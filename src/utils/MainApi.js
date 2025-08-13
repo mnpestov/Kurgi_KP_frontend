@@ -38,7 +38,7 @@ class Api {
             .then(this._checkResponse);
     }
 
-        updateKp(formData, kpNumber) {
+    updateKp(formData, kpNumber) {
         return fetch(`${this._baseUrl}/kp/${kpNumber}`, {
             method: 'PUT',
             headers: {
@@ -102,6 +102,6 @@ class Api {
 
 }
 export const MainApi = new Api({
-    // baseUrl: 'http://localhost:3000',
-    baseUrl: 'https://kurgi-kp-backend.onrender.com',
+    baseUrl: 'http://localhost:3000',
+    // baseUrl: 'https://kurgi-kp-backend.onrender.com',
 });
