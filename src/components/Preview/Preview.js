@@ -25,7 +25,7 @@ function Preview({
     downloadSpec,
     getProductWeightWithMeasure,
     getDeclination
-}) {    
+}) {
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
 
@@ -56,7 +56,7 @@ function Preview({
             >
                 На главную
             </Button>
-            
+
             {/* <Button
                 use="default"
                 icon={<ArrowBoldLeft />}
@@ -76,7 +76,7 @@ function Preview({
                     kpDate={formatDate(formData.kpDate)}
                     contractNumber={formData.contractNumber}
                     contractDate={formatDate(formData.contractDate)}
-                    managerPhoto={m.photo}
+                    managerPhoto={formData.managerPhoto || m.photo}
                 />
 
                 {/* Списки товаров (каждый списокKp – отдельный блок КП) */}

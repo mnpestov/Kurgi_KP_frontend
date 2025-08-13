@@ -19,9 +19,8 @@ export const MANAGERS = {
 };
 
 // Выбрать ключ по formData (сначала manager, потом по имени)
-export const resolveManagerKey = (formData) => {
-  if (formData?.manager === 'pavel' || formData?.manager === 'peter') return formData.manager;
-  return String(formData?.managerName || '').startsWith('Павел') ? 'pavel' : 'peter';
+export const resolveManagerKey = (managerName) => {
+  return String(managerName || '').startsWith('Павел') ? 'pavel' : 'peter';
 };
 
 export const getManagerPhoto = (formData) => {
