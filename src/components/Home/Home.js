@@ -59,8 +59,8 @@ function Home({ dispatch, setIsNewKp }) {
 
             {/* Данные */}
             {lastKps.map((kp) => {
-              const prettyDate = kp.kpDate
-                ? new Date(kp.kpDate).toLocaleDateString('ru-RU', {
+              const prettyDate = kp.startEvent
+                ? new Date(kp.startEvent).toLocaleDateString('ru-RU', {
                   year: 'numeric',
                   month: 'numeric',
                   day: 'numeric',
