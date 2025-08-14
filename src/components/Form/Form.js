@@ -102,7 +102,11 @@ function Form({
         const last = parseInt(String(res).trim(), 10);
         const next = Number.isFinite(last) ? last + 1 : 1;
 
-        setFormData(prev => ({ ...prev, kpNumber: String(next) }));
+        setFormData(prev => ({
+          ...prev,
+          kpNumber: String(next),
+          contractNumber: prev.contractNumber || String(next),
+        }));
         setErrors(prev => ({ ...prev, kpNumber: '' }));
       })
       .catch((err) => {
@@ -129,7 +133,6 @@ function Form({
     if (Object.keys(patch).length) {
       setFormData(prev => ({ ...prev, ...patch }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isValidDate = (v) => /^\d{2}\.\d{2}\.\d{4}$/.test(v) || /^\d{4}-\d{2}-\d{2}$/.test(v);
