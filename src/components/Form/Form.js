@@ -536,7 +536,7 @@ function Form({
         <h3 className="form__section-title">Логистика</h3>
         <div className="form__fields form__field_logistic">
           <div className="form__field">
-            <label className="form__label">За пределами МКАД?</label>
+            <label className="form__label">В пределах МКАД?</label>
             <Switcher
               ariaLabel="В пределах МКАД"
               name="isWithinMkad"
