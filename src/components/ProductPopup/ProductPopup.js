@@ -17,7 +17,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         productWeight: "",
         countOfProduct: "",
         priceOfProduct: "",
-        typeOfProduct: "eat",
+        typeOfProduct: "",
     });
 
     const [isAuto, setIsAuto] = useState(false);
@@ -54,7 +54,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 productWeight: "",
                 countOfProduct: "",
                 priceOfProduct: "",
-                typeOfProduct: "eat",
+                typeOfProduct: "",
             });
             setInputValue("");
             setIsAuto(false);
@@ -63,14 +63,21 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+            // Получаем DOM-элементы через .node для Input из @skbkontur/react-ui
+            const inputElement = inputRef.current?.node;
+            const suggestionsElement = suggestionsRef.current;
+            
+            if (inputElement && !inputElement.contains(event.target) &&
+                suggestionsElement && !suggestionsElement.contains(event.target)) {
                 setShowSuggestions(false);
             }
         }
 
         document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
         };
     }, []);
 
@@ -97,16 +104,21 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         setProductData(prev => ({ ...prev, product: value, productId: null }));
         setIsAuto(false);
 
-        if (value.length > 1) {
+        // Фильтруем предложения по введенному тексту
+        filterSuggestions(value);
+    };
+
+    const filterSuggestions = (value = "") => {
+        if (value.length > 0) {
             const filtered = productsCatalog
                 .filter(p => p.name.toLowerCase().includes(value.toLowerCase()))
                 .slice(0, 10);
             setSuggestions(filtered);
-            setShowSuggestions(true);
         } else {
-            setSuggestions([]);
-            setShowSuggestions(false);
+            // Если поле пустое, показываем первые 10 товаров
+            setSuggestions(productsCatalog.slice(0, 20));
         }
+        setShowSuggestions(true);
     };
 
     const handleSuggestionClick = (product) => {
@@ -126,14 +138,20 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         const s = String(label || '').trim().toLowerCase();
         if (s.startsWith('еда') || s.startsWith('food')) return 'eat';
         if (s.startsWith('напит') || s.startsWith('drink')) return 'drink';
-        if (s.startsWith('организ') || s.startsWith('логист') || s.startsWith('organization')) return 'organisation';
+        if (s.startsWith('организ') || s.startsWith('логист') || s.startsWith('organisation')) return 'organisation';
         return 'eat';
     };
 
     const handleInputFocus = () => {
-        if (inputValue.length > 1 && suggestions.length > 0) {
-            setShowSuggestions(true);
-        }
+        // Показываем список при фокусе, даже если поле пустое
+        filterSuggestions(inputValue);
+    };
+
+    const handleInputBlur = () => {
+        // Не закрываем сразу, чтобы дать время на клик по предложению
+        setTimeout(() => {
+            setShowSuggestions(false);
+        }, 200);
     };
 
     return (
@@ -152,6 +170,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             value={inputValue}
                             onValueChange={handleInputChange}
                             onFocus={handleInputFocus}
+                            onBlur={handleInputBlur}
                             placeholder="Начните вводить или выберите из списка…"
                             width="100%"
                         />
@@ -179,6 +198,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                                             padding: '8px 12px',
                                             cursor: 'pointer',
                                             borderBottom: '1px solid #eee',
+                                            fontSize: '14px',
                                         }}
                                         onClick={() => handleSuggestionClick(product)}
                                         onMouseEnter={(e) => {
