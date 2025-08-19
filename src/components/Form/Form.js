@@ -73,7 +73,7 @@ function Form({
       managerName: 'Петр Кург',
       managerJobTitle: 'Руководитель проекта',
       managerEmail: 'kurgi-bar@yandex.ru',
-      managerTel: '+7 925 516-31-16',
+      managerTel: '+7 926 966-88-71',
     },
     pavel: {
       managerPhoto: PavelPhoto,
