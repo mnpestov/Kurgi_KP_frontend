@@ -57,13 +57,13 @@ function Preview({
                 На главную
             </Button>
 
-            {/* <Button
+            <Button
                 use="default"
                 icon={<ArrowBoldLeft />}
                 onClick={() => navigate('/new')}
             >
                 Назад к редактированию
-            </Button> */}
+            </Button>
 
             <div className="preview">
                 {/* Шапка КП */}
