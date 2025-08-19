@@ -88,13 +88,17 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         document.addEventListener("touchstart", handleClickOutside);
         document.addEventListener("keydown", handleEscapeKey);
         
+        // Предотвращение скролла
         document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
             document.removeEventListener("touchstart", handleClickOutside);
             document.removeEventListener("keydown", handleEscapeKey);
             document.body.style.overflow = 'unset';
+            document.body.style.position = 'static';
         };
     }, [onClose]);
 
@@ -173,41 +177,24 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 ref={modalRef}
                 className="popup"
             >
-                {/* Заголовок и кнопка закрытия */}
                 <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
-                    marginBottom: '20px',
-                    paddingRight: '30px'
+                    marginBottom: '20px'
                 }}>
                     <h2 className="form__title">Добавить продукт</h2>
                     <button 
                         className="popup__button_close"
                         onClick={onClose}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            fontSize: '24px',
-                            cursor: 'pointer',
-                            color: '#999'
-                        }}
                     >
                         ×
                     </button>
                 </div>
 
-                <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: '16px'
-                }}>
-                    {/* Продукт - кастомный ComboBox */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div style={{ position: 'relative' }}>
-                        <label htmlFor="product" style={{ 
-                            display: 'block', 
-                            marginBottom: '4px'
-                        }}>
+                        <label htmlFor="product" style={{ display: 'block', marginBottom: '8px' }}>
                             Продукт:
                         </label>
                         <Input
@@ -221,39 +208,12 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             width="100%"
                         />
                         {showSuggestions && suggestions.length > 0 && (
-                            <div
-                                ref={suggestionsRef}
-                                style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    right: 0,
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                    zIndex: 1000,
-                                    maxHeight: '200px',
-                                    overflowY: 'auto'
-                                }}
-                            >
+                            <div ref={suggestionsRef} className="suggestions-list">
                                 {suggestions.map((product) => (
                                     <div
                                         key={product.id}
-                                        style={{
-                                            padding: '12px',
-                                            cursor: 'pointer',
-                                            borderBottom: '1px solid #eee',
-                                            display: 'flex',
-                                            alignItems: 'center'
-                                        }}
+                                        className="suggestion-item"
                                         onClick={() => handleSuggestionClick(product)}
-                                        onMouseEnter={(e) => {
-                                            e.target.style.backgroundColor = '#f5f5f5';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.target.style.backgroundColor = 'white';
-                                        }}
                                     >
                                         {product.name}
                                     </div>
@@ -261,23 +221,15 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             </div>
                         )}
                         {isAuto && (
-                            <div className="hint" style={{ 
-                                marginTop: '4px', 
-                                fontSize: '12px', 
-                                color: '#888' 
-                            }}>
+                            <div className="hint">
                                 Автозаполнено из каталога
                             </div>
                         )}
                     </div>
 
-                    {/* Остальные поля */}
                     {['composition', 'productWeight', 'countOfProduct', 'priceOfProduct'].map((field) => (
                         <div key={field}>
-                            <label htmlFor={field} style={{ 
-                                display: 'block', 
-                                marginBottom: '4px'
-                            }}>
+                            <label htmlFor={field} style={{ display: 'block', marginBottom: '8px' }}>
                                 {field === 'composition' && 'Состав:'}
                                 {field === 'productWeight' && 'Вес:'}
                                 {field === 'countOfProduct' && 'Количество:'}
@@ -294,12 +246,8 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                         </div>
                     ))}
 
-                    {/* Тип */}
                     <div>
-                        <label htmlFor="typeOfProduct" style={{ 
-                            display: 'block', 
-                            marginBottom: '4px'
-                        }}>
+                        <label htmlFor="typeOfProduct" style={{ display: 'block', marginBottom: '8px' }}>
                             Тип:
                         </label>
                         <Select
@@ -321,13 +269,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                     </div>
                 </div>
 
-                {/* Футер с кнопками */}
-                <div style={{ 
-                    marginTop: '20px', 
-                    display: 'flex', 
-                    justifyContent: 'flex-end',
-                    gap: '12px'
-                }}>
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                     <Button use="primary" onClick={handleSave}>Сохранить</Button>
                     <Button use="default" onClick={onClose}>Отмена</Button>
                 </div>
