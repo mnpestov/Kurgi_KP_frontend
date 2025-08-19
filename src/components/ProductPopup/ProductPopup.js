@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-    Modal,
     Input,
     Select,
     Button,
@@ -17,7 +16,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         productWeight: "",
         countOfProduct: "",
         priceOfProduct: "",
-        typeOfProduct: "",
+        typeOfProduct: "eat",
     });
 
     const [isAuto, setIsAuto] = useState(false);
@@ -26,6 +25,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     const [inputValue, setInputValue] = useState("");
     const suggestionsRef = useRef(null);
     const inputRef = useRef(null);
+    const modalRef = useRef(null);
 
     const typeOptions = [
         { value: 'eat', label: 'Еда' },
@@ -54,7 +54,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 productWeight: "",
                 countOfProduct: "",
                 priceOfProduct: "",
-                typeOfProduct: "",
+                typeOfProduct: "eat",
             });
             setInputValue("");
             setIsAuto(false);
@@ -63,23 +63,40 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
 
     useEffect(() => {
         function handleClickOutside(event) {
-            // Получаем DOM-элементы через .node для Input из @skbkontur/react-ui
             const inputElement = inputRef.current?.node;
             const suggestionsElement = suggestionsRef.current;
+            const modalElement = modalRef.current;
             
             if (inputElement && !inputElement.contains(event.target) &&
-                suggestionsElement && !suggestionsElement.contains(event.target)) {
+                suggestionsElement && !suggestionsElement.contains(event.target) &&
+                modalElement && !modalElement.contains(event.target)) {
                 setShowSuggestions(false);
+            }
+
+            if (modalElement && !modalElement.contains(event.target)) {
+                onClose();
+            }
+        }
+
+        function handleEscapeKey(event) {
+            if (event.key === 'Escape') {
+                onClose();
             }
         }
 
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("touchstart", handleClickOutside);
+        document.addEventListener("keydown", handleEscapeKey);
+        
+        document.body.style.overflow = 'hidden';
+
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
             document.removeEventListener("touchstart", handleClickOutside);
+            document.removeEventListener("keydown", handleEscapeKey);
+            document.body.style.overflow = 'unset';
         };
-    }, []);
+    }, [onClose]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -104,7 +121,6 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         setProductData(prev => ({ ...prev, product: value, productId: null }));
         setIsAuto(false);
 
-        // Фильтруем предложения по введенному тексту
         filterSuggestions(value);
     };
 
@@ -115,8 +131,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 .slice(0, 10);
             setSuggestions(filtered);
         } else {
-            // Если поле пустое, показываем первые 10 товаров
-            setSuggestions(productsCatalog.slice(0, 20));
+            setSuggestions(productsCatalog.slice(0, 10));
         }
         setShowSuggestions(true);
     };
@@ -138,30 +153,61 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         const s = String(label || '').trim().toLowerCase();
         if (s.startsWith('еда') || s.startsWith('food')) return 'eat';
         if (s.startsWith('напит') || s.startsWith('drink')) return 'drink';
-        if (s.startsWith('организ') || s.startsWith('логист') || s.startsWith('organisation')) return 'organisation';
+        if (s.startsWith('организ') || s.startsWith('логист') || s.startsWith('organization')) return 'organisation';
         return 'eat';
     };
 
     const handleInputFocus = () => {
-        // Показываем список при фокусе, даже если поле пустое
         filterSuggestions(inputValue);
     };
 
     const handleInputBlur = () => {
-        // Не закрываем сразу, чтобы дать время на клик по предложению
         setTimeout(() => {
             setShowSuggestions(false);
         }, 200);
     };
 
     return (
-        <Modal onClose={onClose} width={500}>
-            <Modal.Header>Добавить продукт</Modal.Header>
-            <Modal.Body>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="popup-overlay">
+            <div 
+                ref={modalRef}
+                className="popup"
+            >
+                {/* Заголовок и кнопка закрытия */}
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '20px',
+                    paddingRight: '30px'
+                }}>
+                    <h2 className="form__title">Добавить продукт</h2>
+                    <button 
+                        className="popup__button_close"
+                        onClick={onClose}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '24px',
+                            cursor: 'pointer',
+                            color: '#999'
+                        }}
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '16px'
+                }}>
                     {/* Продукт - кастомный ComboBox */}
                     <div style={{ position: 'relative' }}>
-                        <label htmlFor="product" style={{ display: 'block', marginBottom: 4 }}>
+                        <label htmlFor="product" style={{ 
+                            display: 'block', 
+                            marginBottom: '4px'
+                        }}>
                             Продукт:
                         </label>
                         <Input
@@ -188,17 +234,18 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                     zIndex: 1000,
                                     maxHeight: '200px',
-                                    overflowY: 'auto',
+                                    overflowY: 'auto'
                                 }}
                             >
                                 {suggestions.map((product) => (
                                     <div
                                         key={product.id}
                                         style={{
-                                            padding: '8px 12px',
+                                            padding: '12px',
                                             cursor: 'pointer',
                                             borderBottom: '1px solid #eee',
-                                            fontSize: '14px',
+                                            display: 'flex',
+                                            alignItems: 'center'
                                         }}
                                         onClick={() => handleSuggestionClick(product)}
                                         onMouseEnter={(e) => {
@@ -214,72 +261,45 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             </div>
                         )}
                         {isAuto && (
-                            <div className="hint" style={{ marginTop: 4, fontSize: 12, color: '#888' }}>
+                            <div className="hint" style={{ 
+                                marginTop: '4px', 
+                                fontSize: '12px', 
+                                color: '#888' 
+                            }}>
                                 Автозаполнено из каталога
                             </div>
                         )}
                     </div>
 
-                    {/* Состав */}
-                    <div>
-                        <label htmlFor="composition" style={{ display: 'block', marginBottom: 4 }}>
-                            Состав:
-                        </label>
-                        <Input
-                            id="composition"
-                            name="composition"
-                            value={productData.composition}
-                            onValueChange={value => handleChange({ target: { name: 'composition', value } })}
-                            width="100%"
-                            disabled={isAuto}
-                        />
-                    </div>
-
-                    {/* Вес */}
-                    <div>
-                        <label htmlFor="productWeight" style={{ display: 'block', marginBottom: 4 }}>
-                            Вес:
-                        </label>
-                        <Input
-                            id="productWeight"
-                            name="productWeight"
-                            value={productData.productWeight}
-                            onValueChange={value => handleChange({ target: { name: 'productWeight', value } })}
-                            width="100%"
-                        />
-                    </div>
-
-                    {/* Количество */}
-                    <div>
-                        <label htmlFor="countOfProduct" style={{ display: 'block', marginBottom: 4 }}>
-                            Количество:
-                        </label>
-                        <Input
-                            id="countOfProduct"
-                            name="countOfProduct"
-                            value={productData.countOfProduct}
-                            onValueChange={value => handleChange({ target: { name: 'countOfProduct', value } })}
-                            width="100%"
-                        />
-                    </div>
-
-                    {/* Цена */}
-                    <div>
-                        <label htmlFor="priceOfProduct" style={{ display: 'block', marginBottom: 4 }}>
-                            Цена:
-                        </label>
-                        <Input
-                            id="priceOfProduct"
-                            name="priceOfProduct"
-                            value={productData.priceOfProduct}
-                            onValueChange={value => handleChange({ target: { name: 'priceOfProduct', value } })}
-                            width="100%"
-                        />
-                    </div>
+                    {/* Остальные поля */}
+                    {['composition', 'productWeight', 'countOfProduct', 'priceOfProduct'].map((field) => (
+                        <div key={field}>
+                            <label htmlFor={field} style={{ 
+                                display: 'block', 
+                                marginBottom: '4px'
+                            }}>
+                                {field === 'composition' && 'Состав:'}
+                                {field === 'productWeight' && 'Вес:'}
+                                {field === 'countOfProduct' && 'Количество:'}
+                                {field === 'priceOfProduct' && 'Цена:'}
+                            </label>
+                            <Input
+                                id={field}
+                                name={field}
+                                value={productData[field]}
+                                onValueChange={value => handleChange({ target: { name: field, value } })}
+                                width="100%"
+                                disabled={field === 'composition' && isAuto}
+                            />
+                        </div>
+                    ))}
 
                     {/* Тип */}
                     <div>
-                        <label htmlFor="typeOfProduct" style={{ display: 'block', marginBottom: 4 }}>
+                        <label htmlFor="typeOfProduct" style={{ 
+                            display: 'block', 
+                            marginBottom: '4px'
+                        }}>
                             Тип:
                         </label>
                         <Select
@@ -300,14 +320,19 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                         />
                     </div>
                 </div>
-            </Modal.Body>
-            <Modal.Footer panel>
-                <Gapped gap={12}>
+
+                {/* Футер с кнопками */}
+                <div style={{ 
+                    marginTop: '20px', 
+                    display: 'flex', 
+                    justifyContent: 'flex-end',
+                    gap: '12px'
+                }}>
                     <Button use="primary" onClick={handleSave}>Сохранить</Button>
                     <Button use="default" onClick={onClose}>Отмена</Button>
-                </Gapped>
-            </Modal.Footer>
-        </Modal>
+                </div>
+            </div>
+        </div>
     );
 }
 
