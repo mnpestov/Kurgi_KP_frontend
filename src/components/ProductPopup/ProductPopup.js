@@ -22,7 +22,8 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     });
 
     const [isAuto, setIsAuto] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null); // { id, name, composition, type }
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [inputValue, setInputValue] = useState(""); // Добавляем состояние для значения инпута
 
     const typeOptions = [
         { value: 'eat', label: 'Еда' },
@@ -33,9 +34,13 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     useEffect(() => {
         if (productToEdit) {
             setProductData(productToEdit);
+            setInputValue(productToEdit.product || ""); // Устанавливаем значение инпута
             if (productToEdit.productId) {
                 const found = productsCatalog.find(p => p.id === productToEdit.productId);
-                if (found) setSelectedProduct(found);
+                if (found) {
+                    setSelectedProduct(found);
+                    setInputValue(found.name); // Устанавливаем значение инпута
+                }
                 setIsAuto(true);
             } else {
                 setSelectedProduct(null);
@@ -51,6 +56,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 priceOfProduct: "",
                 typeOfProduct: "eat",
             });
+            setInputValue(""); // Сбрасываем значение инпута
             setSelectedProduct(null);
             setIsAuto(false);
         }
@@ -115,6 +121,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             onValueChange={(item) => {
                                 if (!item) return;
                                 setSelectedProduct(item);
+                                setInputValue(item.name); // Устанавливаем значение инпута
                                 setIsAuto(true);
                                 setProductData(prev => ({
                                     ...prev,
@@ -126,6 +133,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                             }}
                             onInputValueChange={(text) => {
                                 const t = String(text ?? '');
+                                setInputValue(t); // Обновляем значение инпута
 
                                 // 1) Если выпал пустой текст (blur/внутренний сброс) — НЕ трогаем выбранный товар
                                 if (t === '' && selectedProduct) return;
@@ -138,6 +146,8 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                                 if (isAuto) setIsAuto(false);
                                 setProductData(prev => ({ ...prev, product: t, productId: null }));
                             }}
+                            // Добавляем пропс для управления значением инпута
+                            source={inputValue}
                         />
                         {isAuto && (
                             <div className="hint" style={{ marginTop: 4, fontSize: 12, color: '#888' }}>
@@ -146,6 +156,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                         )}
                     </div>
 
+                    {/* Остальные поля остаются без изменений */}
                     {/* Состав */}
                     <div>
                         <label htmlFor="composition" style={{ display: 'block', marginBottom: 4 }}>
