@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Modal,
     Input,
     Select,
     Button,
     Gapped,
-    ComboBox,
 } from '@skbkontur/react-ui';
 import './ProductPopup.css';
 import productsCatalog from '../../data/products.json';
@@ -22,8 +21,11 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     });
 
     const [isAuto, setIsAuto] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [inputValue, setInputValue] = useState(""); // Добавляем состояние для значения инпута
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [suggestions, setSuggestions] = useState([]);
+    const [inputValue, setInputValue] = useState("");
+    const suggestionsRef = useRef(null);
+    const inputRef = useRef(null);
 
     const typeOptions = [
         { value: 'eat', label: 'Еда' },
@@ -34,16 +36,14 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     useEffect(() => {
         if (productToEdit) {
             setProductData(productToEdit);
-            setInputValue(productToEdit.product || ""); // Устанавливаем значение инпута
+            setInputValue(productToEdit.product || "");
             if (productToEdit.productId) {
                 const found = productsCatalog.find(p => p.id === productToEdit.productId);
                 if (found) {
-                    setSelectedProduct(found);
-                    setInputValue(found.name); // Устанавливаем значение инпута
+                    setInputValue(found.name);
                 }
                 setIsAuto(true);
             } else {
-                setSelectedProduct(null);
                 setIsAuto(false);
             }
         } else {
@@ -56,11 +56,23 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 priceOfProduct: "",
                 typeOfProduct: "eat",
             });
-            setInputValue(""); // Сбрасываем значение инпута
-            setSelectedProduct(null);
+            setInputValue("");
             setIsAuto(false);
         }
     }, [productToEdit, productId]);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -80,18 +92,35 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         onClose();
     };
 
-    // --- ComboBox helpers ---
-    const getItems = (query) => {
-        const q = String(query || '').toLowerCase().trim();
-        const all = (productsCatalog || []);
-        const filtered = q
-            ? all.filter(p => String(p.name).toLowerCase().includes(q))
-            : all.slice(0, 50);
-        return Promise.resolve(filtered);
+    const handleInputChange = (value) => {
+        setInputValue(value);
+        setProductData(prev => ({ ...prev, product: value, productId: null }));
+        setIsAuto(false);
+
+        if (value.length > 1) {
+            const filtered = productsCatalog
+                .filter(p => p.name.toLowerCase().includes(value.toLowerCase()))
+                .slice(0, 10);
+            setSuggestions(filtered);
+            setShowSuggestions(true);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
     };
 
-    const valueToString = (item) => (item && item.name) ? item.name : '';
-    const renderItem = (item) => (item && item.name) ? item.name : '';
+    const handleSuggestionClick = (product) => {
+        setInputValue(product.name);
+        setProductData(prev => ({
+            ...prev,
+            productId: product.id,
+            product: product.name,
+            composition: product.composition || '',
+            typeOfProduct: normalizeType(product.type || 'eat'),
+        }));
+        setIsAuto(true);
+        setShowSuggestions(false);
+    };
 
     const normalizeType = (label) => {
         const s = String(label || '').trim().toLowerCase();
@@ -101,54 +130,69 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         return 'eat';
     };
 
+    const handleInputFocus = () => {
+        if (inputValue.length > 1 && suggestions.length > 0) {
+            setShowSuggestions(true);
+        }
+    };
+
     return (
         <Modal onClose={onClose} width={500}>
             <Modal.Header>Добавить продукт</Modal.Header>
             <Modal.Body>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {/* Продукт */}
-                    <div>
+                    {/* Продукт - кастомный ComboBox */}
+                    <div style={{ position: 'relative' }}>
                         <label htmlFor="product" style={{ display: 'block', marginBottom: 4 }}>
                             Продукт:
                         </label>
-                        <ComboBox
-                            getItems={getItems}
-                            value={selectedProduct}
-                            valueToString={valueToString}
-                            renderItem={renderItem}
+                        <Input
+                            ref={inputRef}
+                            id="product"
+                            value={inputValue}
+                            onValueChange={handleInputChange}
+                            onFocus={handleInputFocus}
                             placeholder="Начните вводить или выберите из списка…"
                             width="100%"
-                            onValueChange={(item) => {
-                                if (!item) return;
-                                setSelectedProduct(item);
-                                setInputValue(item.name); // Устанавливаем значение инпута
-                                setIsAuto(true);
-                                setProductData(prev => ({
-                                    ...prev,
-                                    productId: item.id || null,
-                                    product: item.name,
-                                    composition: item.composition || '',
-                                    typeOfProduct: normalizeType(item.type || 'eat'),
-                                }));
-                            }}
-                            onInputValueChange={(text) => {
-                                const t = String(text ?? '');
-                                setInputValue(t); // Обновляем значение инпута
-
-                                // 1) Если выпал пустой текст (blur/внутренний сброс) — НЕ трогаем выбранный товар
-                                if (t === '' && selectedProduct) return;
-
-                                // 2) Если текст совпадает с названием выбранного товара — тоже ничего не делаем
-                                if (selectedProduct && t === selectedProduct.name) return;
-
-                                // 3) Иначе — пользователь реально что-то печатает → ручной режим
-                                if (selectedProduct) setSelectedProduct(null);
-                                if (isAuto) setIsAuto(false);
-                                setProductData(prev => ({ ...prev, product: t, productId: null }));
-                            }}
-                            // Добавляем пропс для управления значением инпута
-                            source={inputValue}
                         />
+                        {showSuggestions && suggestions.length > 0 && (
+                            <div
+                                ref={suggestionsRef}
+                                style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: 0,
+                                    right: 0,
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                    zIndex: 1000,
+                                    maxHeight: '200px',
+                                    overflowY: 'auto',
+                                }}
+                            >
+                                {suggestions.map((product) => (
+                                    <div
+                                        key={product.id}
+                                        style={{
+                                            padding: '8px 12px',
+                                            cursor: 'pointer',
+                                            borderBottom: '1px solid #eee',
+                                        }}
+                                        onClick={() => handleSuggestionClick(product)}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.backgroundColor = '#f5f5f5';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.backgroundColor = 'white';
+                                        }}
+                                    >
+                                        {product.name}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         {isAuto && (
                             <div className="hint" style={{ marginTop: 4, fontSize: 12, color: '#888' }}>
                                 Автозаполнено из каталога
@@ -156,7 +200,6 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                         )}
                     </div>
 
-                    {/* Остальные поля остаются без изменений */}
                     {/* Состав */}
                     <div>
                         <label htmlFor="composition" style={{ display: 'block', marginBottom: 4 }}>
