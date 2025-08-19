@@ -7,7 +7,7 @@ export const MANAGERS = {
     name: 'Петр Кург',
     job: 'Руководитель проекта',
     email: 'kurgi-bar@yandex.ru',
-    tel: '+7 925 516-31-16',
+    tel: '+7 926 966-88-71',
   },
   pavel: {
     photo: PavelPhoto,
