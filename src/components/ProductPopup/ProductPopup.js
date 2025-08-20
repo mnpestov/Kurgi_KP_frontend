@@ -139,7 +139,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                 .slice(0, 10);
             setSuggestions(filtered);
         } else {
-            setSuggestions(productsCatalog.slice(0, 10));
+            setSuggestions(productsCatalog.slice(0, 20));
         }
         setShowSuggestions(true);
     };
