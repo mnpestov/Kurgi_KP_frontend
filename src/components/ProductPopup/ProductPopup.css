@@ -35,6 +35,16 @@
     min-height: 44px !important; /* Минимальная высота для iOS */
 }
 
+.popup_select {
+    height: 32px;
+    padding: 5px 7px;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    border-radius: 2px;
+    display: flex;
+    width: 100%;
+}
+
 .popup__lable {
     margin: 0.25rem 0;
     font-family: Arial, sans-serif;
@@ -127,11 +137,11 @@
 }
 
 .suggestion-item {
-    padding: 12px;
+    padding: 7px 7px;
     cursor: pointer;
     border-bottom: 1px solid #eee;
     font-size: 16px;
-    min-height: 44px;
+    min-height: 32px;
     display: flex;
     align-items: center;
     transition: background-color 0.2s ease;
@@ -160,8 +170,8 @@
     }
     
     .popup {
-        width: 100%;
-        max-width: 100%;
+        width: max(50%, 500px);
+        /* max-width: 100%; */
         margin: 0;
         padding: 15px;
     }
@@ -204,4 +214,34 @@
         /* Предотвращает зум на iOS */
         touch-action: manipulation;
     }
+}
+/* Добавьте эти стили в конец файла */
+
+/* Исправление z-index для Select из @skbkontur/react-ui */
+.popup [data-comp-name="Select"] {
+    z-index: 10002 !important;
+    position: relative;
+}
+
+.popup [data-comp-name="DropdownContainer"] {
+    z-index: 10003 !important;
+}
+
+.popup [data-comp-name="Menu"] {
+    z-index: 10004 !important;
+}
+
+/* Убедитесь, что overlay имеет правильный z-index */
+.popup-overlay {
+    z-index: 10000;
+}
+
+.popup {
+    z-index: 10001;
+    position: relative;
+}
+
+/* Увеличиваем z-index для выпадающего списка предложений */
+.suggestions-list {
+    z-index: 10005;
 }

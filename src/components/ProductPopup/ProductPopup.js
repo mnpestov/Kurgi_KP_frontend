@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-    Input,
-    Select,
-    Button,
-    Gapped,
-} from '@skbkontur/react-ui';
+import { Input, Button } from '@skbkontur/react-ui';
 import './ProductPopup.css';
 import productsCatalog from '../../data/products.json';
 
@@ -23,9 +18,12 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [inputValue, setInputValue] = useState("");
+    const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+
     const suggestionsRef = useRef(null);
     const inputRef = useRef(null);
     const modalRef = useRef(null);
+    const typeDropdownRef = useRef(null);
 
     const typeOptions = [
         { value: 'eat', label: 'Еда' },
@@ -33,15 +31,18 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         { value: 'organisation', label: 'Организация' },
     ];
 
+    const getTypeLabel = (value) => {
+        const option = typeOptions.find(opt => opt.value === value);
+        return option ? option.label : value;
+    };
+
     useEffect(() => {
         if (productToEdit) {
             setProductData(productToEdit);
             setInputValue(productToEdit.product || "");
             if (productToEdit.productId) {
                 const found = productsCatalog.find(p => p.id === productToEdit.productId);
-                if (found) {
-                    setInputValue(found.name);
-                }
+                if (found) setInputValue(found.name);
                 setIsAuto(true);
             } else {
                 setIsAuto(false);
@@ -66,13 +67,15 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
             const inputElement = inputRef.current?.node;
             const suggestionsElement = suggestionsRef.current;
             const modalElement = modalRef.current;
-            
-            if (inputElement && !inputElement.contains(event.target) &&
-                suggestionsElement && !suggestionsElement.contains(event.target) &&
-                modalElement && !modalElement.contains(event.target)) {
+            const typeDropdownElement = typeDropdownRef.current;
+
+            if (suggestionsElement && !suggestionsElement.contains(event.target) &&
+                inputElement && !inputElement.contains(event.target)) {
                 setShowSuggestions(false);
             }
-
+            if (typeDropdownElement && !typeDropdownElement.contains(event.target)) {
+                setShowTypeDropdown(false);
+            }
             if (modalElement && !modalElement.contains(event.target)) {
                 onClose();
             }
@@ -80,15 +83,16 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
 
         function handleEscapeKey(event) {
             if (event.key === 'Escape') {
-                onClose();
+                if (showSuggestions) setShowSuggestions(false);
+                else if (showTypeDropdown) setShowTypeDropdown(false);
+                else onClose();
             }
         }
 
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("touchstart", handleClickOutside);
         document.addEventListener("keydown", handleEscapeKey);
-        
-        // Предотвращение скролла
+
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
@@ -100,7 +104,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
             document.body.style.overflow = 'unset';
             document.body.style.position = 'static';
         };
-    }, [onClose]);
+    }, [onClose, showSuggestions, showTypeDropdown]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -120,11 +124,11 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         onClose();
     };
 
+    // ---------- Продукт ----------
     const handleInputChange = (value) => {
         setInputValue(value);
         setProductData(prev => ({ ...prev, product: value, productId: null }));
         setIsAuto(false);
-
         filterSuggestions(value);
     };
 
@@ -147,56 +151,33 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
             productId: product.id,
             product: product.name,
             composition: product.composition || '',
-            typeOfProduct: normalizeType(product.type || 'eat'),
+            typeOfProduct: product.type || 'eat',
         }));
         setIsAuto(true);
         setShowSuggestions(false);
     };
 
-    const normalizeType = (label) => {
-        const s = String(label || '').trim().toLowerCase();
-        if (s.startsWith('еда') || s.startsWith('food')) return 'eat';
-        if (s.startsWith('напит') || s.startsWith('drink')) return 'drink';
-        if (s.startsWith('организ') || s.startsWith('логист') || s.startsWith('organization')) return 'organisation';
-        return 'eat';
-    };
+    const handleInputFocus = () => filterSuggestions(inputValue);
+    const handleInputBlur = () => setTimeout(() => setShowSuggestions(false), 200);
 
-    const handleInputFocus = () => {
-        filterSuggestions(inputValue);
-    };
-
-    const handleInputBlur = () => {
-        setTimeout(() => {
-            setShowSuggestions(false);
-        }, 200);
+    // ---------- Тип (без фильтрации) ----------
+    const handleTypeSelect = (value) => {
+        setProductData(prev => ({ ...prev, typeOfProduct: value }));
+        setShowTypeDropdown(false);
     };
 
     return (
         <div className="popup-overlay">
-            <div 
-                ref={modalRef}
-                className="popup"
-            >
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    marginBottom: '20px'
-                }}>
+            <div ref={modalRef} className="popup">
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
                     <h2 className="form__title">Добавить продукт</h2>
-                    <button 
-                        className="popup__button_close"
-                        onClick={onClose}
-                    >
-                        ×
-                    </button>
+                    <button className="popup__button_close" onClick={onClose}>×</button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* Продукт */}
                     <div style={{ position: 'relative' }}>
-                        <label htmlFor="product" style={{ display: 'block', marginBottom: '8px' }}>
-                            Продукт:
-                        </label>
+                        <label htmlFor="product" style={{ display: 'block', marginBottom: '8px' }}>Продукт:</label>
                         <Input
                             ref={inputRef}
                             id="product"
@@ -220,56 +201,73 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
                                 ))}
                             </div>
                         )}
-                        {isAuto && (
-                            <div className="hint">
-                                Автозаполнено из каталога
-                            </div>
-                        )}
+                        {isAuto && <div className="hint">Автозаполнено из каталога</div>}
                     </div>
 
-                    {['composition', 'productWeight', 'countOfProduct', 'priceOfProduct'].map((field) => (
+                    {/* Остальные поля */}
+                    {['composition','productWeight','countOfProduct','priceOfProduct'].map((field) => (
                         <div key={field}>
-                            <label htmlFor={field} style={{ display: 'block', marginBottom: '8px' }}>
-                                {field === 'composition' && 'Состав:'}
-                                {field === 'productWeight' && 'Вес:'}
-                                {field === 'countOfProduct' && 'Количество:'}
-                                {field === 'priceOfProduct' && 'Цена:'}
+                            <label htmlFor={field} style={{ display:'block', marginBottom:'8px' }}>
+                                {field==='composition' && 'Состав:'}
+                                {field==='productWeight' && 'Вес:'}
+                                {field==='countOfProduct' && 'Количество:'}
+                                {field==='priceOfProduct' && 'Цена:'}
                             </label>
                             <Input
                                 id={field}
                                 name={field}
                                 value={productData[field]}
-                                onValueChange={value => handleChange({ target: { name: field, value } })}
+                                onValueChange={value => handleChange({ target:{name:field,value} })}
                                 width="100%"
-                                disabled={field === 'composition' && isAuto}
+                                disabled={field==='composition' && isAuto}
                             />
                         </div>
                     ))}
 
-                    <div>
-                        <label htmlFor="typeOfProduct" style={{ display: 'block', marginBottom: '8px' }}>
-                            Тип:
-                        </label>
-                        <Select
-                            id="typeOfProduct"
-                            items={typeOptions.map(option => option.value)}
-                            value={productData.typeOfProduct}
-                            onValueChange={value => handleChange({ target: { name: 'typeOfProduct', value } })}
-                            renderItem={item => {
-                                const match = typeOptions.find(opt => opt.value === item);
-                                return match ? match.label : item;
-                            }}
-                            renderValue={item => {
-                                const match = typeOptions.find(opt => opt.value === item);
-                                return match ? match.label : item;
-                            }}
-                            width="100%"
-                            disabled={isAuto}
-                        />
+                    {/* Тип */}
+                    <div ref={typeDropdownRef} style={{ position:'relative' }}>
+                        <label htmlFor="typeOfProduct" style={{ display:'block', marginBottom:'8px' }}>Тип:</label>
+                        <div className="popup_select" onClick={() => setShowTypeDropdown(!showTypeDropdown)}>
+                            <span>{getTypeLabel(productData.typeOfProduct)}</span>
+                        </div>
+                        {showTypeDropdown && (
+                            <div
+                                style={{
+                                    position:'absolute',
+                                    top:'100%',
+                                    left:0,
+                                    right:0,
+                                    backgroundColor:'white',
+                                    border:'1px solid #d9d9d9',
+                                    borderRadius:'4px',
+                                    boxShadow:'0 2px 8px rgba(0,0,0,0.15)',
+                                    zIndex:10010
+                                }}
+                            >
+                                {typeOptions.map((option) => (
+                                    <div
+                                        key={option.value}
+                                        style={{
+                                            padding:'7px',
+                                            cursor:'pointer',
+                                            borderBottom:'1px solid #eee',
+                                            backgroundColor: productData.typeOfProduct===option.value ? '#F0F0F0':'white',
+                                            minHeight:'32px',
+                                            display:'flex',
+                                            alignItems:'center',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onClick={() => handleTypeSelect(option.value)}
+                                    >
+                                        {option.label}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <div style={{ marginTop:'24px', display:'flex', justifyContent:'flex-end', gap:'12px' }}>
                     <Button use="primary" onClick={handleSave}>Сохранить</Button>
                     <Button use="default" onClick={onClose}>Отмена</Button>
                 </div>
