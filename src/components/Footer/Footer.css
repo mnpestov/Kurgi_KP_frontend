@@ -10,7 +10,7 @@
 
 .list_footer {
     justify-content: start;
-    min-width: 864px;
+    /* min-width: 864px; */
 }
 
 .footer__title {
@@ -26,4 +26,14 @@
     text-align: start;
     list-style: none;
     padding: 0;
+}
+
+@media (max-width: 960px) {
+    .footer__logo-container-preview {
+        margin: 1.77vw auto 9.58vw;
+    }
+
+    .footer__count-container-preview {
+        gap: 2.8vw;
+    }
 }

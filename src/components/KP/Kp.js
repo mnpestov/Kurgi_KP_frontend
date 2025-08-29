@@ -26,9 +26,22 @@ function Kp({
     addRowOnList,
     dispatch,
     getProductWeightWithMeasure,
-    getDeclination
+    getDeclination,
+    kpPreviewSelectors,
+    listSelector
 }) {
-    
+
+    const {
+        listLogoSelector,
+        listTitleSelector,
+        listTableSelector,
+        tableTitlesSelector,
+        tableTitleSelector,
+        tableSubtitleSelector,
+        footerSelector,
+        listTotalSelector
+    } = kpPreviewSelectors
+
     const [showPopup, setShowPopup] = useState(false);
     const totalCost = list.rows.map((item) => {
         return item.countOfProduct * item.priceOfProduct;
@@ -45,14 +58,14 @@ function Kp({
 
     return (
         <>
-            <div className="list">
+            <div className={listSelector}>
                 <div className="list__container">
-                    <img className="list__logo" src={logo} alt="logo" />
-                    <h2 className="list__title">{listTitle}</h2>
-                    <table className="list__table">
+                    <img className={listLogoSelector} src={logo} alt="logo" />
+                    <h2 className={listTitleSelector}>{listTitle}</h2>
+                    <table className={listTableSelector}>
                         <thead>
-                            <tr className="table__row table__titles">
-                                <th className="table__title list__subtitle-container">
+                            <tr className={`table__row ${tableTitlesSelector}`}>
+                                <th className={`${tableTitleSelector} list__subtitle-container`}>
                                     <p className="list__subtitle list__subtitle_place">место: <span className="list__subtitle_text">{`${eventPlace}`}</span></p>
                                     <p className="list__subtitle list__subtitle_person">кол-во персон: <span className="list__subtitle_text">{`${getDeclination(countOfPerson)}`}</span></p>
                                     <div className="list__subtitle_time">
@@ -64,22 +77,35 @@ function Kp({
                                         </p>
                                     </div>
                                 </th>
-                                <th className="table__title">Количество, шт</th>
-                                <th className="table__title">Стоимость</th>
-                                <th className="table__title">Цена, руб</th>
+                                <th className={tableTitleSelector}>Количество, шт</th>
+                                <th className={tableTitleSelector}>Стоимость</th>
+                                <th className={tableTitleSelector}>Цена, руб</th>
                             </tr>
                         </thead>
                         {list.rows.map((item, index) => (
-                            <Row key={index} data={item} index={index} deleteRow={deleteRow} deleteRowFromDb={deleteRowFromDb} updateRowInDb={updateRowInDb} listId={list.id} rowId={item.id} isNewKp={isNewKp} dispatch={dispatch} getProductWeightWithMeasure={getProductWeightWithMeasure} />
+                            <Row
+                                key={index}
+                                data={item}
+                                index={index}
+                                deleteRow={deleteRow}
+                                deleteRowFromDb={deleteRowFromDb}
+                                updateRowInDb={updateRowInDb}
+                                listId={list.id}
+                                rowId={item.id}
+                                isNewKp={isNewKp}
+                                dispatch={dispatch}
+                                getProductWeightWithMeasure={getProductWeightWithMeasure}
+                                kpPreviewSelectors={kpPreviewSelectors}
+                            />
                         ))}
                     </table>
                 </div>
-                <div className="table__subtitle">
-                    <div className="footer">
+                <div className={tableSubtitleSelector}>
+                    <div className={footerSelector}>
                         <div className="list__footnotes">
                             <p className="list__footnote">*В стоимость включены все расходники.</p>
                         </div>
-                        <div className="list__total">
+                        <div className={listTotalSelector}>
                             <p className="list__totla-cost">{`Итоговая сумма: ${GetPrice(parseInt(totalCost))}`}</p>
                         </div>
                     </div>

@@ -30,9 +30,9 @@
 /* Предотвращение зума на iOS */
 .popup input,
 .popup select {
-    font-size: 16px !important; /* Минимальный размер для предотвращения зума */
-    padding: 12px !important; /* Достаточный padding для удобного касания */
-    min-height: 44px !important; /* Минимальная высота для iOS */
+    font-size: 16px !important;
+    padding: 12px !important;
+    min-height: 44px !important;
 }
 
 .popup_select {
@@ -43,82 +43,6 @@
     border-radius: 2px;
     display: flex;
     width: 100%;
-}
-
-.popup__lable {
-    margin: 0.25rem 0;
-    font-family: Arial, sans-serif;
-    font-weight: 400;
-    font-size: 16px; /* 16px для предотвращения зума */
-    color: black;
-    display: grid;
-    grid-template-columns: 15% 1fr;
-    justify-content: end;
-    align-items: center;
-    gap: 5px;
-}
-
-.popup__input {
-    width: max-content;
-}
-
-.input, .form__select {
-    width: 100%;
-    padding: 12px; /* Увеличенный padding */
-    margin-top: 0.25rem;
-    box-sizing: border-box;
-    font-size: 16px; /* Предотвращение зума */
-}
-
-.form__title {
-    margin-bottom: 0.5rem;
-    font-family: Arial, sans-serif;
-    font-weight: 600;
-    font-size: 20px;
-    color: #333;
-}
-
-.popup__button {
-    margin-top: 10px;
-    margin-right: 10px;
-    padding: 12px 20px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    min-height: 44px;
-}
-
-.popup__button_close {
-    background: none;
-    border: none;
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    color: #999;
-    width: 40px;
-    height: 40px;
-    font-size: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.popup__button_close:hover {
-    background-color: rgba(153, 153, 153, 0.2);
-}
-
-.popup__button_save:hover {
-    background-color: #45a049;
-}
-
-.popup__button_icon {
-    width: 30px;
 }
 
 /* Стили для выпадающего списка */
@@ -133,7 +57,7 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: 1001;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .suggestion-item {
@@ -161,6 +85,23 @@
     color: #888;
 }
 
+.popup__button_close {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: #999;
+    cursor: pointer;
+    display: flex;
+    font-size: 30px;
+    height: 40px;
+    justify-content: center;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 40px;
+}
+
 /* Медиа-запросы для мобильных */
 @media (max-width: 768px) {
     .popup-overlay {
@@ -168,17 +109,11 @@
         align-items: flex-start;
         padding-top: 40px;
     }
-    
+
     .popup {
         width: max(50%, 500px);
-        /* max-width: 100%; */
         margin: 0;
         padding: 15px;
-    }
-    
-    .form__title {
-        font-size: 18px;
-        margin-bottom: 15px;
     }
 }
 
@@ -187,14 +122,13 @@
     .popup {
         font-size: 16px;
     }
-    
+
     .popup input,
     .popup select,
     .popup button {
         font-size: 16px !important;
     }
-    
-    /* Предотвращение зума при фокусе */
+
     .popup input:focus,
     .popup select:focus {
         font-size: 16px !important;
@@ -204,18 +138,17 @@
 
 /* Отключение зума для iOS */
 @supports (-webkit-touch-callout: none) {
+
     .popup input,
     .popup select,
     .popup textarea {
         font-size: 16px !important;
     }
-    
+
     .popup-overlay {
-        /* Предотвращает зум на iOS */
         touch-action: manipulation;
     }
 }
-/* Добавьте эти стили в конец файла */
 
 /* Исправление z-index для Select из @skbkontur/react-ui */
 .popup [data-comp-name="Select"] {
@@ -231,7 +164,6 @@
     z-index: 10004 !important;
 }
 
-/* Убедитесь, что overlay имеет правильный z-index */
 .popup-overlay {
     z-index: 10000;
 }
@@ -241,7 +173,6 @@
     position: relative;
 }
 
-/* Увеличиваем z-index для выпадающего списка предложений */
 .suggestions-list {
     z-index: 10005;
 }

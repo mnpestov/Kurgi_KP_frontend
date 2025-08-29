@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import './Row.css';
 
-function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch, getProductWeightWithMeasure }) {
+function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch, getProductWeightWithMeasure, kpPreviewSelectors }) {
     const { composition } = data;
     const [translateX, setTranslateX] = useState(0);
     const [startX, setStartX] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
     const [editedData, setEditedData] = useState({ ...data });
     const totalCostOfProduct = editedData.countOfProduct * editedData.priceOfProduct;
-
+    const {
+        tabeLineProductSelector,
+        rowActionsSelector,
+        rowButtonSelector,
+        tabelLineSelector,
+        rowCountSelector,
+        deleteButtonSelector
+    } = kpPreviewSelectors
     const handleTouchStart = (e) => {
         setStartX(e.touches[0].clientX);
     };
@@ -57,9 +64,9 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
 
     return (
         <div className="row-wrapper">
-            <div className="row-actions">
-                <button type="button" className="row-button delete-button" onClick={handleDelete}>delete</button>
-                <button type="button" className="row-button edit-button" onClick={handleEdit}>edit</button>
+            <div className={rowActionsSelector}>
+                <button type="button" className={`${rowButtonSelector} ${deleteButtonSelector}`} onClick={handleDelete}>delete</button>
+                <button type="button" className={`${rowButtonSelector} edit-button`} onClick={handleEdit}>edit</button>
             </div>
             <tbody
                 id={`table__row_${index}`}
@@ -115,23 +122,23 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                     onChange={handleInputChange}
                                 />
                             </td>
-                            <td className="save-button__container row_count">
+                            <td className={`save-button__container ${rowCountSelector}`}>
                                 <button className="row-button save-button" type="button" onClick={handleSaveEdit}>Сохранить</button>
                             </td>
                         </>
                     ) : (
                         <>
                             <td className="table__line-container">
-                                <p className="table__line tabel__line_product">{`${editedData.product || ' '} `}
-                                    <span className="table__line tabel__line_composition-of-product">{`${(composition) ? editedData.composition : ' '}`}</span>
-                                    <span className="table__line tabel__line_weight-of-product">{` ${(editedData.productWeight) ? productWeightWithMeasure : ' '}`}</span>
+                                <p className={`${tabelLineSelector} ${tabeLineProductSelector}`}>{`${editedData.product || ' '} `}
+                                    <span className={`${tabelLineSelector} tabel__line_composition-of-product`}>{`${(composition) ? editedData.composition : ' '}`}</span>
+                                    <span className={`${tabelLineSelector} tabel__line_weight-of-product`}>{` ${(editedData.productWeight) ? productWeightWithMeasure : ' '}`}</span>
                                 </p>
                             </td>
-                            <td className="row_count">{editedData.countOfProduct || ''}</td>
+                            <td className={rowCountSelector}>{editedData.countOfProduct || ''}</td>
                             {!isCompact && (
                                 <>
-                                    <td className="row_count">{editedData.priceOfProduct || ''}</td>
-                                    <td className="row_count">{totalCostOfProduct || ''}</td>
+                                    <td className={rowCountSelector}>{editedData.priceOfProduct || ''}</td>
+                                    <td className={rowCountSelector}>{totalCostOfProduct || ''}</td>
                                 </>
                             )}
                         </>

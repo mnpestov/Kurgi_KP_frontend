@@ -27,11 +27,6 @@
     border-radius: 4px;
 }
 
-/* .edit-button {
-    background-color: #3498db;
-    width: 75px;
-} */
-
 .delete-button {
     background-color: #e74c3c;
     width: 75px;
@@ -69,4 +64,31 @@
 
 .row_count-input-product {
     max-width: 31%;
+}
+
+@media (max-width: 960px) {
+    .row-actions-preview {
+        width: 15.62vw;
+    }
+
+    .row-button-preview {
+        padding: 0 1.25vw;
+        font-size: 1.46vw;
+    }
+
+    .tabel__line_product-preview {
+        font-size: 1.88vw;
+    }
+
+    .tabel__line-preview {
+        font-size: 1.48vw;
+    }
+
+    .row_count-preview {
+        font-size: 1.69vw;
+    }
+
+    .delete-button-preview {
+        width: 8vw;
+    }
 }

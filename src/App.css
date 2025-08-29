@@ -1,19 +1,23 @@
-.page {
+/* .page {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.35rem; /* 5px */
+  padding: 0.35rem;
   min-width: 900px;
-}
+} */
 
 .preview {
   box-sizing: border-box;
   /* padding: 1.875rem; 30px */
-  padding: 30px;
+  /* padding: 30px; */
   background-color: lightgrey;
   /* overflow-x: auto; */
 }
 
 .preview-page {
+  /* width: 900px; */
+}
+
+.hidden-print-mount {
   width: 900px;
 }

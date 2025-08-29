@@ -6,6 +6,9 @@ import Header from '../Header/Header';
 import Kp from '../KP/Kp';
 import KpCompact from '../KpCompact/KpCompact';
 import { MANAGERS, resolveManagerKey } from '../../constants/managers';
+import "./Preview.css";
+// import HiddenPrint from "../HiddenPrint/HiddenPrint";
+import "./PreviewHidden.css"; // классы для скрытых маунтов
 
 // Подключаем Footer лениво (lazy), как это было сделано в App.js
 const Footer = lazy(() => import('../Footer/Footer'));
@@ -24,10 +27,14 @@ function Preview({
     downloadPDF,
     downloadSpec,
     getProductWeightWithMeasure,
-    getDeclination
+    getDeclination,
+    exportHiddenPDF,
+    kpPreviewSelectors
 }) {
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
+    // const hiddenPrintRef = useRef(null);
+
 
     // Форматирование даты (ожидаем ISO)
     const formatDate = (value) => {
@@ -49,22 +56,25 @@ function Preview({
 
     return (
         <div className="preview-page">
-            <Button
-                use="default"
-                icon={<ArrowBoldLeft />}
-                onClick={() => navigate('/')}
-            >
-                На главную
-            </Button>
+            <div className='preview-page__buttons'>
+                <Button
+                    height="3.333vw"
+                    use="default"
+                    icon={<ArrowBoldLeft />}
+                    onClick={() => navigate('/')}
+                >
+                    На главную
+                </Button>
 
-            <Button
-                use="default"
-                icon={<ArrowBoldLeft />}
-                onClick={() => navigate('/new')}
-            >
-                Назад к редактированию
-            </Button>
-
+                {/* <Button
+                    height="3.333vw"
+                    use="default"
+                    icon={<ArrowBoldLeft />}
+                    onClick={() => navigate('/new')}
+                >
+                    Назад к редактированию
+                </Button> */}
+            </div>
             <div className="preview">
                 {/* Шапка КП */}
                 <Header
@@ -77,6 +87,8 @@ function Preview({
                     contractNumber={formData.contractNumber}
                     contractDate={formatDate(formData.contractDate)}
                     managerPhoto={formData.managerPhoto || m.photo}
+                    kpPreviewSelectors={kpPreviewSelectors}
+                    listSelector={'list list-preview'}
                 />
 
                 {/* Списки товаров (каждый списокKp – отдельный блок КП) */}
@@ -104,6 +116,8 @@ function Preview({
                         GetPrice={GetPrice}
                         getProductWeightWithMeasure={getProductWeightWithMeasure}
                         getDeclination={getDeclination}
+                        listSelector={'list list-preview'}
+                        kpPreviewSelectors={kpPreviewSelectors}
                     />
                 ))}
 
@@ -132,6 +146,7 @@ function Preview({
                             deleteRowFromDb={deleteRowFromDb}
                             updateRowInDb={updateRowInDb}
                             getProductWeightWithMeasure={getProductWeightWithMeasure}
+                            kpPreviewSelectors={kpPreviewSelectors}
                         />
                     ))}
                 </div>
@@ -145,13 +160,41 @@ function Preview({
                         logisticsCost={parseInt(formData.logisticsCost) || 0}
                         isWithinMkad={formData.isWithinMkad}
                         GetPrice={GetPrice}
+                        listSelector={'list list-preview list_footer'}
+                        kpPreviewSelectors={kpPreviewSelectors}
                     />
                 </Suspense>
             </div>
+            {/* НОВЫЙ скрытый компонент печати полной версии — полностью автономный */}
+            {/* <div
+                ref={hiddenPrintRef}
+                className="hiddenPrintMount"
+                data-role="hidden-print-mount"
+            >
+                
+                <HiddenPrint
+                    formData={formData}
+                    listsKp={listsKp}
+                    isNewKp={isNewKp}
+                    dispatch={dispatch}
+                    deleteRow={deleteRow}
+                    deleteList={deleteList}
+                    deleteRowFromDb={deleteRowFromDb}
+                    updateRowInDb={updateRowInDb}
+                    addRowOnList={addRowOnList}
+                    GetPrice={GetPrice}
+                    getProductWeightWithMeasure={getProductWeightWithMeasure}
+                    getDeclination={getDeclination}
+                    kpPreviewSelectors={kpPreviewSelectors}
+                //   rowsByListId={rowsByListId}
+                />
+            </div> */}
             {/* Кнопки скачивания PDF и спецификации */}
-            <div className="preview__actions">
-                <Gapped gap={16}>
+
+            {/* <Gapped gap={16}> */}
+                <div className="preview-page__buttons">
                     <Button
+                    fontSize="1px"
                         use="success"
                         onClick={downloadPDF}
                     >
@@ -163,9 +206,16 @@ function Preview({
                     >
                         Скачать спецификацию
                     </Button>
-                </Gapped>
-            </div>
-        </div>
+                    {/* <Button
+                        use="success"
+                        onClick={exportHiddenPDF}
+                    >
+                        Скачать hiden PDF
+                    </Button> */}
+                </div>
+            {/* </Gapped > */}
+
+        </div >
     );
 }
 

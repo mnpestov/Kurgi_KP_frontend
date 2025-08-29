@@ -1,0 +1,28 @@
+/* src/components/Preview/PreviewHidden.css */
+/* Только классы. Скрываем маунты вне экрана. */
+
+:root {
+  --hidden-mount-width: 864px; /* должна совпадать с базовой шириной твоей .list */
+}
+
+/* Маунт скрытой ПОЛНОЙ версии (Header+Kp+Footer внутри) */
+.hiddenPrintMount {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: var(--hidden-mount-width);
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Маунт скрытой спецификации (если у тебя был) */
+.compactPrintMount {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: var(--hidden-mount-width);
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
