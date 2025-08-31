@@ -1,7 +1,6 @@
 import React, { useRef, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download } from '@skbkontur/react-icons';
-import { Button, Gapped } from '@skbkontur/react-ui';
 import { ArrowBoldLeft } from "@skbkontur/react-icons";
 import Header from '../Header/Header';
 import Kp from '../KP/Kp';
@@ -58,24 +57,7 @@ function Preview({
     return (
         <div className="preview-page">
             <div className='list__buttons'>
-                {/* <Button
-                    height="3.333vw"
-                    use="default"
-                    icon={<ArrowBoldLeft />}
-                    onClick={() => navigate('/')}
-                >
-                    На главную
-                </Button> */}
                 <button type="button" className={`list__button navigation-button`} onClick={() => navigate('/')}><ArrowBoldLeft />На главную</button>
-
-                {/* <Button
-                    height="3.333vw"
-                    use="default"
-                    icon={<ArrowBoldLeft />}
-                    onClick={() => navigate('/new')}
-                >
-                    Назад к редактированию
-                </Button> */}
             </div>
             <div className="preview">
                 {/* Шапка КП */}
@@ -199,38 +181,13 @@ function Preview({
                     getProductWeightWithMeasure={getProductWeightWithMeasure}
                     getDeclination={getDeclination}
                     kpPreviewSelectors={kpPrintSelectors}
-                //   rowsByListId={rowsByListId}
                 />
             </div>
             {/* Кнопки скачивания PDF и спецификации */}
-
-            {/* <Gapped gap={16}> */}
             <div className="list__buttons">
-                {/* <Button
-                    fontSize="1px"
-                    use="success"
-                    onClick={downloadPDF}
-                >
-                    Скачать PDF
-                </Button> */}
-                {/* <Button
-                    use="success"
-                    onClick={exportHiddenPDF}
-                >
-                    Скачать PDF
-                </Button>
-                <Button
-                    use="primary"
-                    onClick={downloadSpec}
-                >
-                    Скачать спецификацию
-                </Button> */}
-
                 <button type="button" className={`list__button save-button`} onClick={exportHiddenPDF}><Download />Скачать PDF</button>
                 <button type="button" className={`list__button edit-button`} onClick={downloadSpec}><Download />Скачать спецификацию</button>
             </div>
-            {/* </Gapped > */}
-
         </div >
     );
 }
