@@ -1,6 +1,5 @@
-.preview-page__buttons {
-    display: flex;
-    gap: 2.1vw;
-    margin: 2.1vw auto;
-    width: 90vw;
+.navigation-button {
+    color: black;
+    background-color: transparent;
+    border: 1px #ddd solid;
 }

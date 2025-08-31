@@ -125,6 +125,26 @@
     width: 17.2vw;
 }
 
+.list__buttons {
+    width: 90vw;
+    margin: auto;
+    gap: 1vw;
+}
+
+.list__button {
+    border: none;
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 2vw;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 0.2vw;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    padding: 1vw;
+}
+
 @media (max-width: 960px) {
     .list__title-preview {
         font-size: 2.54vw;
@@ -138,10 +158,12 @@
     .table__titles-preview {
         padding-bottom: 0.9vw;
         margin-bottom: 1.1vw;
+        border-bottom: 0.104vw solid black;
     }
 
     .table__title-preview {
         font-size: 1.69vw;
+
     }
 
     .table__subtitle-preview {
@@ -156,6 +178,7 @@
         font-size: 1.59vw;
         min-width: 34.3vw;
         padding-top: 0.73vw;
+        border-top: 0.104vw solid black;
     }
 
     .tabel__line_product-preview {

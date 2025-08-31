@@ -10,26 +10,32 @@
     right: 0;
     top: 0;
     bottom: 0;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 1vw;
+    align-items: end;
     justify-content: space-around;
     width: 150px;
     z-index: 1;
 }
 
 .row-button {
-    padding: 0 12px;
+    /* padding: 0 12px; */
     border: none;
     background-color: #dc3545;
     color: #fff;
     font-size: 14px;
     cursor: pointer;
     border-radius: 4px;
+    margin-bottom: 0.2vw;
 }
 
 .delete-button {
     background-color: #e74c3c;
-    width: 75px;
+    /* height: 100%; */
+    margin: 0;
+    width: 100%;
+    font-size: 1.48vw;
 }
 
 .table__row-container {
@@ -38,6 +44,23 @@
     position: relative;
     z-index: 2;
     width: 100%;
+}
+
+.table__row {
+    display: grid;
+    grid-template-columns: 50% repeat(3, 1fr);
+    justify-items: end;
+    align-items: end;
+    transition: background-color 0.3s ease;
+}
+
+.table__row_edit {
+    grid-template-columns: 58% 1fr 1fr min-content;
+}
+
+.table__line-container {
+    display: flex;
+    justify-self: start;
 }
 
 .save-button {
@@ -55,6 +78,7 @@
     font-size: 16.2432px;
     font-weight: 400;
     text-align: end;
+    box-sizing: border-box;
 }
 
 .row_count-input {
@@ -64,6 +88,127 @@
 
 .row_count-input-product {
     max-width: 31%;
+}
+/* Стили для режима редактирования */
+.table__line_input-container {
+    display: flex;
+    /* flex-direction: column; */
+    gap: 0.5vw;
+    width: 100%;
+}
+
+.row_count-input-product {
+    width: 100%;
+    max-width: none;
+    font-size: 1.48vw;
+    /* padding: 0.5vw; */
+    border: 1px solid #ddd;
+    border-radius: 0.3vw;
+    box-sizing: border-box;
+}
+
+.edit-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* height: 100%; */
+}
+
+.edit-input {
+    width: 80%;
+    font-size: 1.48vw;
+    /* padding: 0.5vw; */
+    border: 1px solid #ddd;
+    border-radius: 0.3vw;
+    text-align: center;
+}
+
+.save-button {
+    background-color: #4CAF50;
+    height: 100%;
+    margin: 0;
+    width: 100%;
+    font-size: 1.48vw;
+    /* padding: 0.5vw; */
+}
+
+.edit-button {
+    background-color: #3D3D3D;
+    /* height: 100%; */
+    margin: 0;
+    width: 100%;
+    font-size: 1.48vw;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 960px) {
+    .table__line_input-container {
+        /* gap: 1vw; */
+    }
+    
+    .row_count-input-product {
+        font-size: 1.48vw;
+        /* padding: 1vw; */
+        border-radius: 0.8vw;
+    }
+    
+    .edit-input {
+        font-size: 1.48vw;
+        /* padding: 1vw; */
+        border-radius: 0.8vw;
+        width: 90%;
+    }
+    
+    .save-button {
+        font-size: 1.48vw;
+        /* padding: 1vw; */
+    }
+    
+    .table__row {
+        /* grid-template-columns: 50% repeat(3, 1fr); */
+        /* gap: 1vw; */
+    }
+}
+
+/* @media (max-width: 600px) {
+    .row_count-input-product {
+        font-size: 1.48vw;
+        
+    }
+    
+    .edit-input {
+        font-size: 1.48vw;
+        
+    }
+    
+    .save-button {
+        font-size: 1.48vw;
+        
+    }
+    
+    .table__row {
+        grid-template-columns: 40% 20% 20% 20%;
+        
+    }
+} */
+
+/* Улучшение внешнего вида инпутов */
+.row_count-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 0.2vw rgba(76, 175, 80, 0.2);
+}
+
+/* Плейсхолдеры */
+.row_count-input::placeholder {
+    color: #999;
+    font-size: 1.4vw;
+}
+
+@media (max-width: 960px) {
+    .row_count-input::placeholder {
+        font-size: 1.48vw;
+    }
 }
 
 @media (max-width: 960px) {
@@ -89,6 +234,6 @@
     }
 
     .delete-button-preview {
-        width: 8vw;
+        /* width: 8vw; */
     }
 }

@@ -49,7 +49,7 @@ function App() {
     listSelector: 'list list-preview',
     logoContainerSelector: 'logo-container logo-container-preview',
     logoSelector: 'logo logo-preview',
-    subtitleSelector: 'subtitle .subtitle-preview',
+    subtitleSelector: 'subtitle subtitle-preview',
     kpNumberSelector: 'kpNumber kpNumber-preview',
     kpNumberTitleSelector: 'kpNumber_title kpNumber_title-preview',
     managerSelector: 'manager manager-preview',
@@ -71,6 +71,33 @@ function App() {
     deleteButtonSelector: 'delete-button delete-button-preview',
     footerLogoContainerSelector: 'footer__logo-container footer__logo-container-preview',
     footerCountContainerSelector: 'footer__count-container footer__count-container-preview'
+  }
+  const kpPrintSelectors = {
+    listSelector: 'list',
+    logoContainerSelector: 'logo-container',
+    logoSelector: 'logo',
+    subtitleSelector: 'subtitle',
+    kpNumberSelector: 'kpNumber',
+    kpNumberTitleSelector: 'kpNumber_title',
+    managerSelector: 'manager',
+    managerInfosSelector: 'manager_infos',
+    managerPhotoSelector: 'manager__photo',
+    listLogoSelector: 'list__logo',
+    listTitleSelector: 'list__title',
+    listTableSelector: 'list__table',
+    tableTitlesSelector: 'table__titles',
+    tableTitleSelector: 'table__title',
+    tableSubtitleSelector: 'table__subtitle',
+    footerSelector: 'footer',
+    listTotalSelector: 'list__total',
+    tabeLineProductSelector: 'tabel__line_product',
+    rowActionsSelector: 'row-actions',
+    rowButtonSelector: 'row-button',
+    tabelLineSelector: 'table__line',
+    rowCountSelector: 'row_count',
+    deleteButtonSelector: 'delete-button',
+    footerLogoContainerSelector: 'footer__logo-container',
+    footerCountContainerSelector: 'footer__count-container'
   }
 
   initialState.formData = getEmptyFormData()
@@ -126,19 +153,38 @@ function App() {
           }),
         };
       }
-      // case 'ADD_ROW_ON_LIST':
-      //   return {
-      //     ...state,
-      //     listsKp: state.listsKp.map(list => {
-      //       if (list.id === action.payload.listId) {
-      //         return {
-      //           ...list,
-      //           rows: [...list.rows, action.payload.row]
-      //         };
-      //       }
-      //       return list;
-      //     })
-      //   };
+      case 'REFRESH_DATA':
+        return {
+          ...state,
+          listsKp: [...state.listsKp]
+        };
+
+      case 'SYNC_ROW_UPDATE':
+        return {
+          ...state,
+          listsKp: state.listsKp.map(list => {
+            if (list.id === action.payload.listId) {
+              return {
+                ...list,
+                rows: list.rows.map((row, idx) =>
+                  idx === action.payload.rowIndex
+                    ? { ...row, ...action.payload.updatedRow }
+                    : row
+                )
+              };
+            }
+            return list;
+          })
+        };
+      case 'SYNC_ALL_DATA':
+        return {
+          ...state,
+          listsKp: action.payload,
+          allRowsData: action.payload // синхронизировать все данные
+        };
+
+
+
       case 'RESET_FORM':
         return {
           ...state,
@@ -218,6 +264,11 @@ function App() {
       fetchLastKpNumber();
     }
   }, [isNewKp]);
+
+  useEffect(() => {
+    // При изменении listsKp синхронизировать все данные
+    dispatch({ type: 'SYNC_ALL_DATA', payload: listsKp });
+  }, [listsKp]);
 
   const getProductWeightWithMeasure = (productWeight, typeOfProduct) => {
     if (!productWeight) return productWeight;
@@ -307,23 +358,12 @@ function App() {
         if (listsKp?.length > 0 && kpRes.id) {
           updatedLists = await Promise.all(
             listsKp.map(async (list) => {
-              // В твоём API List берёт данные из шапки (formData), это ОК.
-              // Нормализуем даты и здесь на всякий случай.
               const listRes = await MainApi.addList({
                 ...formData,
                 startEvent: toISO(formData.startEvent),
                 endEvent: toISO(formData.endEvent),
                 kpId: kpRes.id,
               });
-
-              // let createdRows = [];
-              // if (list.rows?.length > 0) {
-              //   createdRows = await Promise.all(
-              //     list.rows.map(row =>
-              //       MainApi.addRow({ ...row, listId: listRes.id })
-              //     )
-              //   );
-              // }
               let createdRows = [];
               if (list.rows?.length > 0) {
                 createdRows = await Promise.all(
@@ -523,112 +563,68 @@ function App() {
     pdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
   }, [state.formData, state.listsKp]);
 
+  const exportHiddenPDF = useCallback(async () => {
+    // сохраняем режим редактирования как существующий КП (как было)
+    setIsNewKp(false);
 
+    // A4 landscape в мм
+    const A4_WIDTH_MM = 297;
+    const A4_HEIGHT_MM = 210;
 
+    // Целевая «плотность» для растрового кадра (200 dpi даёт отличное качество печати)
+    const TARGET_DPI = 200;
+    const MM_PER_INCH = 25.4;
+    const targetPxWidth = Math.round((A4_WIDTH_MM / MM_PER_INCH) * TARGET_DPI); // ~2338px
 
+    // Хелпер: даунскейл холст до targetPxWidth и верни JPEG dataURL
+    const canvasToJPEG = (srcCanvas, maxWidthPx = targetPxWidth, quality = 0.85) => {
+      const { width, height } = srcCanvas;
+      // если ширина и так меньше лимита — просто конвертируем
+      if (width <= maxWidthPx) {
+        return srcCanvas.toDataURL("image/jpeg", quality);
+      }
+      const scale = maxWidthPx / width;
+      const dst = document.createElement("canvas");
+      dst.width = Math.round(width * scale);
+      dst.height = Math.round(height * scale);
+      const ctx = dst.getContext("2d");
+      // чуть лучше ресемплинг
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
+      return dst.toDataURL("image/jpeg", quality);
+    };
 
+    const hidenPdf = new jsPDF("landscape", "mm", "a4");
+    const lists = document.querySelectorAll(".hiden-list");
 
+    for (const [index, list] of lists.entries()) {
+      // scale=2 оставляем для чёткости рендеринга шрифтов и линий
+      const canvas = await html2canvas(list, {
+        scale: 2,
+        onclone: (clonedDoc) => {
+          const clonedList = clonedDoc.querySelectorAll(".hiden-list")[index];
+          if (clonedList) {
+            clonedList.style.visibility = "visible";
+            clonedList.style.position = "static";
+            clonedList.style.zIndex = "auto";
+          }
+        }
+      });
 
+      // Конвертация и сжатие: PNG -> JPEG + кап по пиксельной ширине
+      const imgData = canvasToJPEG(canvas, targetPxWidth, 0.85);
 
+      // Поддерживаем пропорции: ширина по всей странице, высота — по аспекту
+      const imgWidthMm = A4_WIDTH_MM;
+      const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
 
+      if (index !== 0) hidenPdf.addPage("a4", "landscape");
+      hidenPdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, Math.min(imgHeightMm, A4_HEIGHT_MM));
+    }
 
-
-
-  // Если у тебя уже есть такие константы — НЕ дублируй.
-  // const A4_WIDTH_MM = 297;
-  // const A4_HEIGHT_MM = 210;
-  // const JPEG_QUALITY = 0.92;
-
-  // const HTML2CANVAS_BASE = {
-  //   useCORS: true,
-  //   backgroundColor: "#FFFFFF",
-  //   logging: false,
-  // };
-  // function formatSafeDate(dateStr) {
-  //   if (!dateStr) return "";
-  //   try {
-  //     const [y, m, d] = String(dateStr).split("-");
-  //     if (y && m && d) return `${y}-${m}-${d}`;
-  //     return String(dateStr).replace(/[^\d.-]/g, "");
-  //   } catch {
-  //     return String(dateStr);
-  //   }
-  // }
-  // const exportHiddenPDF = useCallback(async () => {
-  //   // сохраняем режим редактирования как существующий КП (как было)
-  //   setIsNewKp(false);
-
-  //   // A4 landscape в мм
-  //   const A4_WIDTH_MM = 297;
-  //   const A4_HEIGHT_MM = 210;
-
-  //   // Целевая «плотность» для растрового кадра (200 dpi даёт отличное качество печати)
-  //   const TARGET_DPI = 200;
-  //   const MM_PER_INCH = 25.4;
-  //   const targetPxWidth = Math.round((A4_WIDTH_MM / MM_PER_INCH) * TARGET_DPI); // ~2338px
-
-  //   // Хелпер: даунскейл холст до targetPxWidth и верни JPEG dataURL
-  //   const canvasToJPEG = (srcCanvas, maxWidthPx = targetPxWidth, quality = 0.85) => {
-  //     const { width, height } = srcCanvas;
-  //     // если ширина и так меньше лимита — просто конвертируем
-  //     if (width <= maxWidthPx) {
-  //       return srcCanvas.toDataURL("image/jpeg", quality);
-  //     }
-  //     const scale = maxWidthPx / width;
-  //     const dst = document.createElement("canvas");
-  //     dst.width = Math.round(width * scale);
-  //     dst.height = Math.round(height * scale);
-  //     const ctx = dst.getContext("2d");
-  //     // чуть лучше ресемплинг
-  //     ctx.imageSmoothingEnabled = true;
-  //     ctx.imageSmoothingQuality = "high";
-  //     ctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
-  //     return dst.toDataURL("image/jpeg", quality);
-  //   };
-
-  //   const hidenPdf = new jsPDF("landscape", "mm", "a4");
-  //   const lists = document.querySelectorAll(".hiden-list");
-
-  //   for (const [index, list] of lists.entries()) {
-  //     // scale=2 оставляем для чёткости рендеринга шрифтов и линий
-  //     const canvas = await html2canvas(list, {
-  //       scale: 2,
-  //       onclone: (clonedDoc) => {
-  //         const clonedList = clonedDoc.querySelectorAll(".hiden-list")[index];
-  //         if (clonedList) {
-  //           clonedList.style.visibility = "visible";
-  //           clonedList.style.position = "static";
-  //           clonedList.style.zIndex = "auto";
-  //         }
-  //       }
-  //     });
-
-  //     // Конвертация и сжатие: PNG -> JPEG + кап по пиксельной ширине
-  //     const imgData = canvasToJPEG(canvas, targetPxWidth, 0.85);
-
-  //     // Поддерживаем пропорции: ширина по всей странице, высота — по аспекту
-  //     const imgWidthMm = A4_WIDTH_MM;
-  //     const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
-
-  //     if (index !== 0) hidenPdf.addPage("a4", "landscape");
-  //     hidenPdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, Math.min(imgHeightMm, A4_HEIGHT_MM));
-  //   }
-
-  //   hidenPdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
-  // }, [state.formData, state.listsKp]);
-
-
-
-
-
-
-
-
-
-
-
-
-
+    hidenPdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
+  }, [state.formData, state.listsKp]);
 
   const downloadSpec = useCallback(async () => {
     const A4_WIDTH_MM = 297;
@@ -690,35 +686,6 @@ function App() {
     dispatch({ type: 'DELETE_LIST', payload: { id } });
     if (!isNewKp) deleteListFromDb(id);
   }, [isNewKp]);
-
-  // const addRowOnList = async (row, listId) => {
-  //   const rowWithListId = {
-  //     ...row,
-  //     listId,
-  //   };
-
-  //   if (!isNewKp) {
-  //     try {
-  //       // Добавляем строку в БД
-  //       const savedRow = await MainApi.addRow(rowWithListId);
-
-  //       // Обновляем состояние с ID из базы
-  //       dispatch({
-  //         type: 'ADD_ROW_ON_LIST',
-  //         payload: { row: savedRow, listId }
-  //       });
-  //     } catch (error) {
-  //       console.error("Ошибка при добавлении строки в БД:", error);
-  //     }
-  //   } else {
-  //     // Добавляем строку локально (новый КП ещё не сохранён)
-  //     const tempRow = { ...rowWithListId, id: Date.now() };
-  //     dispatch({
-  //       type: 'ADD_ROW_ON_LIST',
-  //       payload: { row: tempRow, listId }
-  //     });
-  //   }
-  // };
 
   const addRowOnList = async (row, listId) => {
     // найдём список, чтобы понять текущую длину
@@ -828,8 +795,9 @@ function App() {
             downloadSpec={downloadSpec}
             getProductWeightWithMeasure={getProductWeightWithMeasure}
             getDeclination={getDeclination}
-            // exportHiddenPDF={exportHiddenPDF}
+            exportHiddenPDF={exportHiddenPDF}
             kpPreviewSelectors={kpPreviewSelectors}
+            kpPrintSelectors={kpPrintSelectors}
           />
         }
       />

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Add, Edit, Trash } from '@skbkontur/react-icons';
 import './Kp.css';
 import logo from '../../images/logo.png';
 import Row from '../Row/Row';
@@ -111,8 +112,9 @@ function Kp({
                     </div>
                 </div>
             </div>
-            <Gapped gap={12}>
-                <Button
+            <div className="list__buttons">
+                {/* <Gapped gap={12}> */}
+                    {/* <Button
                     use="danger"
                     onClick={handleDeleteList}
                 >
@@ -124,8 +126,12 @@ function Kp({
                     onClick={() => setShowPopup(true)}
                 >
                     Добавить товар на лист
-                </Button>
-            </Gapped>
+                </Button> */}
+
+                    <button type="button" className={`list__button delete-button`} onClick={handleDeleteList}><Trash />Удалить лист</button>
+                    <button type="button" className={`list__button edit-button`} onClick={setShowPopup}><Add />Добавить товар</button>
+                {/* </Gapped> */}
+            </div>
             {showPopup && (
                 <ProductPopup
                     onClose={() => setShowPopup(false)} // Закрытие popup

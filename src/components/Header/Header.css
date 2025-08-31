@@ -115,6 +115,7 @@ p {
     .subtitle-preview {
         padding-bottom: 2.1vw;
         margin-bottom: 2.8vw;
+        border-bottom: 0.104vw solid black;
     }
 
     .kpNumber-preview {

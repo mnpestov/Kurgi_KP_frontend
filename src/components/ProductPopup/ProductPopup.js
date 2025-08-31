@@ -136,7 +136,7 @@ function ProductPopup({ onClose, onSave, productId, productToEdit }) {
         if (value.length > 0) {
             const filtered = productsCatalog
                 .filter(p => p.name.toLowerCase().includes(value.toLowerCase()))
-                .slice(0, 10);
+                .slice(0, 20);
             setSuggestions(filtered);
         } else {
             setSuggestions(productsCatalog.slice(0, 20));

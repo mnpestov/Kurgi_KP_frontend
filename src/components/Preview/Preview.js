@@ -1,5 +1,6 @@
 import React, { useRef, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Download } from '@skbkontur/react-icons';
 import { Button, Gapped } from '@skbkontur/react-ui';
 import { ArrowBoldLeft } from "@skbkontur/react-icons";
 import Header from '../Header/Header';
@@ -7,7 +8,7 @@ import Kp from '../KP/Kp';
 import KpCompact from '../KpCompact/KpCompact';
 import { MANAGERS, resolveManagerKey } from '../../constants/managers';
 import "./Preview.css";
-// import HiddenPrint from "../HiddenPrint/HiddenPrint";
+import HiddenPrint from "../HiddenPrint/HiddenPrint";
 import "./PreviewHidden.css"; // классы для скрытых маунтов
 
 // Подключаем Footer лениво (lazy), как это было сделано в App.js
@@ -24,16 +25,16 @@ function Preview({
     updateRowInDb,
     addRowOnList,
     GetPrice,
-    downloadPDF,
     downloadSpec,
     getProductWeightWithMeasure,
     getDeclination,
     exportHiddenPDF,
-    kpPreviewSelectors
+    kpPreviewSelectors,
+    kpPrintSelectors
 }) {
     const navigate = useNavigate();
     const compactPdfRef = useRef(null);
-    // const hiddenPrintRef = useRef(null);
+    const hiddenPrintRef = useRef(null);
 
 
     // Форматирование даты (ожидаем ISO)
@@ -56,15 +57,16 @@ function Preview({
 
     return (
         <div className="preview-page">
-            <div className='preview-page__buttons'>
-                <Button
+            <div className='list__buttons'>
+                {/* <Button
                     height="3.333vw"
                     use="default"
                     icon={<ArrowBoldLeft />}
                     onClick={() => navigate('/')}
                 >
                     На главную
-                </Button>
+                </Button> */}
+                <button type="button" className={`list__button navigation-button`} onClick={() => navigate('/')}><ArrowBoldLeft />На главную</button>
 
                 {/* <Button
                     height="3.333vw"
@@ -124,11 +126,21 @@ function Preview({
                 {/* Скрытые компактные списки для спецификации (без цен) */}
                 <div
                     ref={compactPdfRef}
-                    style={{ visibility: 'hidden', position: 'absolute', top: 0, left: 0, zIndex: -9999 }}
+                    style={{
+                        position: 'fixed',     // вне потока и не расширяет документ
+                        top: 0,
+                        left: 0,
+                        width: 0,
+                        height: 0,
+                        overflow: 'hidden',
+                        pointerEvents: 'none',
+                        opacity: 0             // можно убрать visibility
+                    }}
                 >
                     {listsKp.map((list, idx) => (
                         <KpCompact
-                            key={`compact-${idx}`}
+                            key={`compact-${list.id}-${Date.now()}`}
+                            // key={`compact-${idx}`}
                             list={list}
                             listTitle={formData.listTitle}
                             startEvent={formatDate(formData.startEvent)}
@@ -146,7 +158,7 @@ function Preview({
                             deleteRowFromDb={deleteRowFromDb}
                             updateRowInDb={updateRowInDb}
                             getProductWeightWithMeasure={getProductWeightWithMeasure}
-                            kpPreviewSelectors={kpPreviewSelectors}
+                            kpPreviewSelectors={kpPrintSelectors}
                         />
                     ))}
                 </div>
@@ -166,13 +178,14 @@ function Preview({
                 </Suspense>
             </div>
             {/* НОВЫЙ скрытый компонент печати полной версии — полностью автономный */}
-            {/* <div
+            <div
                 ref={hiddenPrintRef}
                 className="hiddenPrintMount"
                 data-role="hidden-print-mount"
             >
-                
+
                 <HiddenPrint
+                    key={`hidden-${Date.now()}`}
                     formData={formData}
                     listsKp={listsKp}
                     isNewKp={isNewKp}
@@ -185,34 +198,37 @@ function Preview({
                     GetPrice={GetPrice}
                     getProductWeightWithMeasure={getProductWeightWithMeasure}
                     getDeclination={getDeclination}
-                    kpPreviewSelectors={kpPreviewSelectors}
+                    kpPreviewSelectors={kpPrintSelectors}
                 //   rowsByListId={rowsByListId}
                 />
-            </div> */}
+            </div>
             {/* Кнопки скачивания PDF и спецификации */}
 
             {/* <Gapped gap={16}> */}
-                <div className="preview-page__buttons">
-                    <Button
+            <div className="list__buttons">
+                {/* <Button
                     fontSize="1px"
-                        use="success"
-                        onClick={downloadPDF}
-                    >
-                        Скачать PDF
-                    </Button>
-                    <Button
-                        use="primary"
-                        onClick={downloadSpec}
-                    >
-                        Скачать спецификацию
-                    </Button>
-                    {/* <Button
-                        use="success"
-                        onClick={exportHiddenPDF}
-                    >
-                        Скачать hiden PDF
-                    </Button> */}
-                </div>
+                    use="success"
+                    onClick={downloadPDF}
+                >
+                    Скачать PDF
+                </Button> */}
+                {/* <Button
+                    use="success"
+                    onClick={exportHiddenPDF}
+                >
+                    Скачать PDF
+                </Button>
+                <Button
+                    use="primary"
+                    onClick={downloadSpec}
+                >
+                    Скачать спецификацию
+                </Button> */}
+
+                <button type="button" className={`list__button save-button`} onClick={exportHiddenPDF}><Download />Скачать PDF</button>
+                <button type="button" className={`list__button edit-button`} onClick={downloadSpec}><Download />Скачать спецификацию</button>
+            </div>
             {/* </Gapped > */}
 
         </div >

@@ -1,13 +1,20 @@
 import React, { useState } from "react";
+import { Ok, Edit, Trash } from '@skbkontur/react-icons';
 import './Row.css';
 
 function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch, getProductWeightWithMeasure, kpPreviewSelectors }) {
     const { composition } = data;
+
+    // Определяем максимальное смещение в vw
+    const MAX_TRANSLATE_VW = -15.8; // 15.8vw
+    const THRESHOLD_VW = MAX_TRANSLATE_VW / 2; // Порог для определения завершения жеста
+
     const [translateX, setTranslateX] = useState(0);
     const [startX, setStartX] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
     const [editedData, setEditedData] = useState({ ...data });
     const totalCostOfProduct = editedData.countOfProduct * editedData.priceOfProduct;
+
     const {
         tabeLineProductSelector,
         rowActionsSelector,
@@ -15,7 +22,8 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
         tabelLineSelector,
         rowCountSelector,
         deleteButtonSelector
-    } = kpPreviewSelectors
+    } = kpPreviewSelectors;
+
     const handleTouchStart = (e) => {
         setStartX(e.touches[0].clientX);
     };
@@ -23,16 +31,20 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
     const handleTouchMove = (e) => {
         const currentX = e.touches[0].clientX;
         const diffX = currentX - startX;
-        if (diffX < 0) {
-            setTranslateX(Math.max(diffX, -150));
+
+        // Конвертируем разницу в пикселях в vw
+        const diffInVw = (diffX / window.innerWidth) * 100;
+
+        if (diffInVw < 0) {
+            setTranslateX(Math.max(diffInVw, MAX_TRANSLATE_VW));
         } else {
-            setTranslateX(Math.min(diffX, 0));
+            setTranslateX(Math.min(diffInVw, 0));
         }
     };
 
     const handleTouchEnd = () => {
-        if (translateX <= -75) {
-            setTranslateX(-150);
+        if (translateX <= THRESHOLD_VW) {
+            setTranslateX(MAX_TRANSLATE_VW);
         } else {
             setTranslateX(0);
         }
@@ -50,9 +62,14 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
     };
 
     const handleSaveEdit = () => {
+        const updatedRowData = { ...editedData };
         setIsEditing(false);
         dispatch({ type: 'UPDATE_ROW', payload: { listId, rowIndex: index, updatedRow: editedData } });
-        if (!isNewKp) updateRowInDb(editedData)
+        if (!isNewKp) {
+            updateRowInDb(updatedRowData).then(() => {
+                dispatch({ type: 'REFRESH_DATA' });
+            });
+        }
     };
 
     const handleInputChange = (e) => {
@@ -65,8 +82,11 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
     return (
         <div className="row-wrapper">
             <div className={rowActionsSelector}>
-                <button type="button" className={`${rowButtonSelector} ${deleteButtonSelector}`} onClick={handleDelete}>delete</button>
-                <button type="button" className={`${rowButtonSelector} edit-button`} onClick={handleEdit}>edit</button>
+                {!translateX ? '' : <>
+                    <button type="button" className={`${rowButtonSelector} ${deleteButtonSelector}`} onClick={handleDelete}><Trash /></button>
+                    <button type="button" className={`${rowButtonSelector} edit-button`} onClick={handleEdit}><Edit /></button>
+                </>}
+
             </div>
             <tbody
                 id={`table__row_${index}`}
@@ -74,9 +94,9 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                style={{ transform: `translateX(${translateX}px)` }}
+                style={{ transform: `translateX(${translateX}vw)` }}
             >
-                <tr className="table__row">
+                <tr className={`table__row ${isEditing ? 'table__row_edit' : ''}`}>
                     {isEditing ? (
                         <>
                             <td className="table__line-container">
@@ -87,6 +107,7 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                         name="product"
                                         value={editedData.product}
                                         onChange={handleInputChange}
+                                        placeholder="Продукт"
                                     />
                                     <input
                                         className="row_count-input row_count-input-product"
@@ -94,6 +115,7 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                         name="composition"
                                         value={editedData.composition}
                                         onChange={handleInputChange}
+                                        placeholder="Состав"
                                     />
                                     <input
                                         className="row_count-input row_count-input-product"
@@ -101,21 +123,22 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                         name="productWeight"
                                         value={editedData.productWeight}
                                         onChange={handleInputChange}
+                                        placeholder="Вес"
                                     />
                                 </div>
                             </td>
-                            <td>
+                            <td className="edit-input-container">
                                 <input
-                                    className="row_count-input"
+                                    className="row_count-input edit-input"
                                     type="number"
                                     name="countOfProduct"
                                     value={editedData.countOfProduct}
                                     onChange={handleInputChange}
                                 />
                             </td>
-                            <td>
+                            <td className="edit-input-container">
                                 <input
-                                    className="row_count-input"
+                                    className="row_count-input edit-input"
                                     type="number"
                                     name="priceOfProduct"
                                     value={editedData.priceOfProduct}
@@ -123,7 +146,8 @@ function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, r
                                 />
                             </td>
                             <td className={`save-button__container ${rowCountSelector}`}>
-                                <button className="row-button save-button" type="button" onClick={handleSaveEdit}>Сохранить</button>
+                                <button className="row-button save-button" type="button" onClick={handleSaveEdit}><Ok /></button>
+
                             </td>
                         </>
                     ) : (

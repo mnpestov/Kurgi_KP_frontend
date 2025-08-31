@@ -51,13 +51,13 @@
     align-items: end;
 }
 
-.table__row {
+/* .table__row {
     display: grid;
     grid-template-columns: 50% repeat(3, 1fr);
     justify-items: end;
     align-items: end;
     transition: background-color 0.3s ease;
-}
+} */
 
 .table__title {
     font-family: arial;
@@ -113,10 +113,12 @@
     .table__titles-preview {
         padding-bottom: 0.9vw;
         margin-bottom: 1.1vw;
+        border-bottom: 0.104vw solid black;
     }
 
     .table__title-preview {
         font-size: 1.69vw;
+
     }
 
     .table__subtitle-preview {
