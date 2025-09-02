@@ -1,11 +1,11 @@
 import React, { useRef, Suspense, lazy } from 'react';
-import Header from '../Header/Header';
+import FirstList from '../FirstList/FirstList';
 import Kp from '../KP/Kp';
 import { MANAGERS, resolveManagerKey } from '../../constants/managers';
 import "./HiddenPrint.css"; // классы для скрытых маунтов
 
-// Подключаем Footer лениво (lazy), как это было сделано в App.js
-const Footer = lazy(() => import('../Footer/Footer'));
+// Подключаем LastList лениво (lazy), как это было сделано в App.js
+const LastList = lazy(() => import('../LastList/LastList'));
 
 function HiddenPrint({
   formData,
@@ -44,7 +44,7 @@ function HiddenPrint({
   return (
     <div className="preview">
       {/* Шапка КП */}
-      <Header
+      <FirstList
         managerName={formData.managerName || m.name}
         managerJobTitle={formData.managerJobTitle || m.job}
         managerEmail={formData.managerEmail || m.email}
@@ -87,15 +87,15 @@ function HiddenPrint({
           kpPreviewSelectors={kpPreviewSelectors}
         />
       ))}
-      {/* Итоговая часть КП (Footer) с расчетом стоимости, доставкой и пр. */}
-      <Suspense fallback={<div>Загрузка Footer...</div>}>
-        <Footer
+      {/* Итоговая часть КП (LastList) с расчетом стоимости, доставкой и пр. */}
+      <Suspense fallback={<div>Загрузка LastList...</div>}>
+        <LastList
           lists={listsKp}
           countOfPerson={formData.countOfPerson}
           logisticsCost={parseInt(formData.logisticsCost) || 0}
           isWithinMkad={formData.isWithinMkad}
           GetPrice={GetPrice}
-          listSelector={'hiden-list list_footer'}
+          listSelector={'hiden-list list_last-list'}
           kpPreviewSelectors={kpPreviewSelectors}
         />
       </Suspense>

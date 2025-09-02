@@ -42,7 +42,7 @@ const MemoRowView = React.memo(RowView);
 
 function SavedListsAccordion({
   lists,
-  isNewKp,
+  // isNewKp,
   onDeleteRow,       // (listId, rowIndex) -> dispatch + (if !isNewKp) deleteRowFromDb
   onUpdateRow,       // (listId, rowIndex, updatedRow) -> dispatch + (if !isNewKp) updateRowInDb
   onAddRowOnList,    // (row, listId) -> добавить позицию в лист (и в БД, если !isNewKp)

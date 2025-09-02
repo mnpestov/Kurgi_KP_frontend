@@ -2,7 +2,20 @@ import React, { useState } from "react";
 import { Ok, Edit, Trash } from '@skbkontur/react-icons';
 import './Row.css';
 
-function Row({ data, index, deleteRow, listId, deleteRowFromDb, updateRowInDb, rowId, isNewKp, isCompact, dispatch, getProductWeightWithMeasure, kpPreviewSelectors }) {
+function Row({
+    data,
+    index,
+    deleteRow,
+    listId,
+    deleteRowFromDb,
+    updateRowInDb,
+    rowId,
+    isNewKp,
+    isCompact,
+    dispatch,
+    getProductWeightWithMeasure,
+    kpPreviewSelectors
+}) {
     const { composition } = data;
 
     // Определяем максимальное смещение в vw

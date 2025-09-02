@@ -108,7 +108,7 @@
     gap: 100px;
 }
 
-.footer {
+.last-list {
     display: flex;
     justify-content: space-between;
     font-family: arial;
@@ -171,7 +171,7 @@
         gap: 10.4vw;
     }
 
-    .footer-preview {
+    .last-list-preview {
         font-size: 1.48vw;
     }
 

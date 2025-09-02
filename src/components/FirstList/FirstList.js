@@ -1,7 +1,7 @@
-import './Header.css';
+import './FirstList.css';
 import logo from '../../images/logo.png'
 
-function Header({ managerName, managerJobTitle, managerEmail, managerTel, kpNumber, kpDate, contractNumber, contractDate, managerPhoto, kpPreviewSelectors, listSelector }) {
+function FirstList({ managerName, managerJobTitle, managerEmail, managerTel, kpNumber, kpDate, contractNumber, contractDate, managerPhoto, kpPreviewSelectors, listSelector }) {
     const {
         logoContainerSelector,
         logoSelector,
@@ -14,7 +14,7 @@ function Header({ managerName, managerJobTitle, managerEmail, managerTel, kpNumb
     } = kpPreviewSelectors
 
     return (
-        <section className="header">
+        <section className="first-list">
             <div className={listSelector}>
                 <div className={logoContainerSelector}>
                     <img className={logoSelector} src={logo} alt='logo' />
@@ -41,4 +41,4 @@ function Header({ managerName, managerJobTitle, managerEmail, managerTel, kpNumb
     );
 }
 
-export default Header;
+export default FirstList;

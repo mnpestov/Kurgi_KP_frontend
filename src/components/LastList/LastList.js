@@ -1,16 +1,16 @@
-import './Footer.css';
+import './LastList.css';
 import logo from '../../images/logo.png'
 
-function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice, listSelector, kpPreviewSelectors }) {
+function LastList({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice, listSelector, kpPreviewSelectors }) {
   const numberOfPersons = parseInt(countOfPerson, 10);
 
       const {
-        footerSelector,
+        lastListSelector,
         logoSelector,
         tabeLineProductSelector,
         rowCountSelector,
-        footerLogoContainerSelector,
-        footerCountContainerSelector,
+        lastListLogoContainerSelector,
+        lastListCountContainerSelector,
         listTitleSelector,
     } = kpPreviewSelectors
 
@@ -63,13 +63,13 @@ function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice, l
   const totals = calculateTotals(lists);
 
   return (
-    <section className={footerSelector}>
-      <div className={`list_footer ${listSelector}`}>
-        <div className={footerLogoContainerSelector}>
+    <section className={lastListSelector}>
+      <div className={`list_last-list ${listSelector}`}>
+        <div className={lastListLogoContainerSelector}>
           <img className={logoSelector} src={logo} alt='logo' />
         </div>
-        <div className={footerCountContainerSelector}>
-          <h2 className={`${listTitleSelector} footer__title`}>Расчёт:</h2>
+        <div className={lastListCountContainerSelector}>
+          <h2 className={`${listTitleSelector} last-list__title`}>Расчёт:</h2>
           <p className={`table__line ${tabeLineProductSelector}`}>
             Выход на персону: {(totals.byType.eat.totalWeightByPerson > 0 && totals.byType.drink.totalWeightByPerson > 0) && (
               <span className="tabel__line tabel__line_composition-of-product">
@@ -90,25 +90,25 @@ function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice, l
           <div className="calculation">
             <ul className="totalKp">
               {totals.byType.eat && totals.byType.eat.totalPrice !== 0 && (
-                <li className={`total ${rowCountSelector} footer__row`}>
+                <li className={`total ${rowCountSelector} last-list__row`}>
                   <span className={`table__line ${tabeLineProductSelector}`}>- Еда</span>
                   {' - ' + GetPrice(totals.byType.eat.totalPrice)}
                 </li>
               )}
               {totals.byType.drink && totals.byType.drink.totalPrice !== 0 && (
-                <li className={`total ${rowCountSelector} footer__row`}>
+                <li className={`total ${rowCountSelector} last-list__row`}>
                   <span className={`table__line ${tabeLineProductSelector}`}>- Напитки</span>
                   {' - ' + GetPrice(totals.byType.drink.totalPrice)}
                 </li>
               )}
               {totals.byType.organisation && totals.byType.organisation.totalPrice !== 0 && (
-                <li className={`total ${rowCountSelector} footer__row`}>
+                <li className={`total ${rowCountSelector} last-list__row`}>
                   <span className={`table__line ${tabeLineProductSelector}`}>- Организация кейтеринга</span>
                   {' - ' + GetPrice(totals.byType.organisation.totalPrice)}
                 </li>
               )}
               {(logisticsCost !== 0) && (
-                <li className={`total ${rowCountSelector} footer__row`}>
+                <li className={`total ${rowCountSelector} last-list__row`}>
                   {isWithinMkad ? (
                     <span className={`table__line ${tabeLineProductSelector}`}>- Логистика в пределах МКАД + монтаж / демонтаж</span>
                   ) : (
@@ -133,4 +133,4 @@ function Footer({ lists, countOfPerson, logisticsCost, isWithinMkad, GetPrice, l
   );
 }
 
-export default Footer;
+export default LastList;

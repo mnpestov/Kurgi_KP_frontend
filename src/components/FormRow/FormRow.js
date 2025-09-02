@@ -2,7 +2,7 @@ import React from "react";
 import './FormRow.css';
 import { Button } from '@skbkontur/react-ui';
 import { Edit, Trash } from '@skbkontur/react-icons';
-import useIsMobile from '../../hooks/useIsMobile';
+// import useIsMobile from '../../hooks/useIsMobile';
 
 function FormRow({
   handleRemoveProduct,
@@ -11,7 +11,7 @@ function FormRow({
   getProductWeightWithMeasure
 }) {
 
-  const isMobile = useIsMobile();
+  // const isMobile = useIsMobile();
 
   return (
     <div className="form__table-row">

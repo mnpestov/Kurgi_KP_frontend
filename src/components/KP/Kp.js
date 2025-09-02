@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Add, Edit, Trash } from '@skbkontur/react-icons';
+import { Add, Trash } from '@skbkontur/react-icons';
 import './Kp.css';
 import logo from '../../images/logo.png';
 import Row from '../Row/Row';
 import ProductPopup from '../ProductPopup/ProductPopup';
-import { Button, Gapped } from "@skbkontur/react-ui";
 
 function Kp({
     startEvent,
@@ -113,24 +112,8 @@ function Kp({
                 </div>
             </div>
             <div className="list__buttons">
-                {/* <Gapped gap={12}> */}
-                    {/* <Button
-                    use="danger"
-                    onClick={handleDeleteList}
-                >
-                    Удалить лист
-                </Button>
-
-                <Button
-                    use="primary"
-                    onClick={() => setShowPopup(true)}
-                >
-                    Добавить товар на лист
-                </Button> */}
-
-                    <button type="button" className={`list__button delete-button`} onClick={handleDeleteList}><Trash />Удалить лист</button>
-                    <button type="button" className={`list__button edit-button`} onClick={setShowPopup}><Add />Добавить товар</button>
-                {/* </Gapped> */}
+                <button type="button" className={`list__button delete-button`} onClick={handleDeleteList}><Trash />Удалить лист</button>
+                <button type="button" className={`list__button edit-button`} onClick={setShowPopup}><Add />Добавить товар</button>
             </div>
             {showPopup && (
                 <ProductPopup

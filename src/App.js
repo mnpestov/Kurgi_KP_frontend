@@ -5,7 +5,6 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Form from './components/Form/Form';
 import PavelPhoto from './images/PavelPhoto.jpg';
-import PeterPhoto from './images/PeterPhoto.jpg';
 import { MainApi } from './utils/MainApi'
 import Home from './components/Home/Home';
 import Preview from './components/Preview/Preview';
@@ -61,7 +60,7 @@ function App() {
     tableTitlesSelector: 'table__titles table__titles-preview',
     tableTitleSelector: 'table__title table__title-preview',
     tableSubtitleSelector: 'table__subtitle table__subtitle-preview',
-    footerSelector: 'footer footer-preview',
+    lastListSelector: 'last-list last-list-preview',
     listTotalSelector: 'list__total list__total-preview',
     tabeLineProductSelector: 'tabel__line_product tabel__line_product-preview',
     rowActionsSelector: 'row-actions row-actions-preview',
@@ -69,8 +68,8 @@ function App() {
     tabelLineSelector: 'table__line tabel__line-preview',
     rowCountSelector: 'row_count row_count-preview',
     deleteButtonSelector: 'delete-button delete-button-preview',
-    footerLogoContainerSelector: 'footer__logo-container footer__logo-container-preview',
-    footerCountContainerSelector: 'footer__count-container footer__count-container-preview'
+    lastListLogoContainerSelector: 'last-list__logo-container last-list__logo-container-preview',
+    lastListCountContainerSelector: 'last-list__count-container last-list__count-container-preview'
   }
   const kpPrintSelectors = {
     listSelector: 'list',
@@ -88,7 +87,7 @@ function App() {
     tableTitlesSelector: 'table__titles',
     tableTitleSelector: 'table__title',
     tableSubtitleSelector: 'table__subtitle',
-    footerSelector: 'footer',
+    lastListSelector: 'last-list',
     listTotalSelector: 'list__total',
     tabeLineProductSelector: 'tabel__line_product',
     rowActionsSelector: 'row-actions',
@@ -96,8 +95,8 @@ function App() {
     tabelLineSelector: 'table__line',
     rowCountSelector: 'row_count',
     deleteButtonSelector: 'delete-button',
-    footerLogoContainerSelector: 'footer__logo-container',
-    footerCountContainerSelector: 'footer__count-container'
+    lastListLogoContainerSelector: 'last-list__logo-container',
+    lastListCountContainerSelector: 'last-list__count-container'
   }
 
   initialState.formData = getEmptyFormData()
@@ -275,12 +274,6 @@ function App() {
     return typeOfProduct === 'eat' ? `${productWeight}гр` : `${productWeight}мл`;
   };
 
-  // Форматирование времени
-  const formatTime = (timeString) => {
-    if (!timeString) return '';
-    return timeString.slice(0, 5); // Оставляем только HH:MM
-  };
-
   // Приводим DD.MM.YYYY -> YYYY-MM-DD, всё остальное аккуратно пропускаем
   const toISO = (v) => {
     if (!v) return null;
@@ -453,115 +446,6 @@ function App() {
       alert('Ошибка при удалении списка из базы данных.');
     }
   };
-
-  const searchKp = async (kpNumber) => {
-    const currentKp = await MainApi.getKp(kpNumber);
-    updateCurrentKp(currentKp);
-    // если не найдено, MainApi.getKp выбросит исключение, которое пойдет дальше
-    return currentKp;
-  };
-
-
-  const updateCurrentKp = useCallback((kpData) => {
-    if (!kpData) return;
-    setIsNewKp(false)
-    let managerInfo = {
-      managerPhoto: '',
-      managerName: kpData.formData.managerName || '',
-      managerTel: '',
-      managerJobTitle: '',
-      managerEmail: ''
-    };
-    if (kpData.formData.managerName === 'Петр Кург') {
-      managerInfo = {
-        managerPhoto: PeterPhoto,
-        managerName: 'Петр Кург',
-        managerTel: '+7 926 966-88-71',
-        managerJobTitle: 'Руководитель проекта',
-        managerEmail: 'kurgi-bar@yandex.ru'
-      };
-    } else {
-      managerInfo = {
-        managerPhoto: PavelPhoto,
-        managerName: 'Павел Кург',
-        managerTel: '+7 925 516-31-16',
-        managerJobTitle: 'Руководитель проекта',
-        managerEmail: 'kurgi-bar@yandex.ru'
-      };
-    }
-    dispatch({
-      type: 'UPDATE_FORM_DATA',
-      payload: {
-        ...kpData.formData,
-        ...managerInfo,
-        startTimeStartEvent: formatTime(kpData.formData.startTimeStartEvent),
-        endTimeStartEvent: formatTime(kpData.formData.endTimeStartEvent),
-        startTimeEndEvent: formatTime(kpData.formData.startTimeEndEvent),
-        endTimeEndEvent: formatTime(kpData.formData.endTimeEndEvent),
-      }
-    });
-    dispatch({
-      type: 'UPDATE_LISTS',
-      payload: kpData.listsKp.map(list => ({
-        ...list,
-        rows: list.rows.sort((a, b) => a.id - b.id) // Сортируем строки по id
-      }))
-    });
-  }, []);
-
-  // Функция экспорта в PDF
-  const exportPDF = useCallback(async () => {
-    // сохраняем режим редактирования как существующий КП (как было)
-    setIsNewKp(false);
-
-    // A4 landscape в мм
-    const A4_WIDTH_MM = 297;
-    const A4_HEIGHT_MM = 210;
-
-    // Целевая «плотность» для растрового кадра (200 dpi даёт отличное качество печати)
-    const TARGET_DPI = 200;
-    const MM_PER_INCH = 25.4;
-    const targetPxWidth = Math.round((A4_WIDTH_MM / MM_PER_INCH) * TARGET_DPI); // ~2338px
-
-    // Хелпер: даунскейл холст до targetPxWidth и верни JPEG dataURL
-    const canvasToJPEG = (srcCanvas, maxWidthPx = targetPxWidth, quality = 0.85) => {
-      const { width, height } = srcCanvas;
-      // если ширина и так меньше лимита — просто конвертируем
-      if (width <= maxWidthPx) {
-        return srcCanvas.toDataURL("image/jpeg", quality);
-      }
-      const scale = maxWidthPx / width;
-      const dst = document.createElement("canvas");
-      dst.width = Math.round(width * scale);
-      dst.height = Math.round(height * scale);
-      const ctx = dst.getContext("2d");
-      // чуть лучше ресемплинг
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
-      return dst.toDataURL("image/jpeg", quality);
-    };
-
-    const pdf = new jsPDF("landscape", "mm", "a4");
-    const lists = document.querySelectorAll(".list");
-
-    for (const [index, list] of lists.entries()) {
-      // scale=2 оставляем для чёткости рендеринга шрифтов и линий
-      const canvas = await html2canvas(list, { scale: 2 });
-
-      // Конвертация и сжатие: PNG -> JPEG + кап по пиксельной ширине
-      const imgData = canvasToJPEG(canvas, targetPxWidth, 0.85);
-
-      // Поддерживаем пропорции: ширина по всей странице, высота — по аспекту
-      const imgWidthMm = A4_WIDTH_MM;
-      const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
-
-      if (index !== 0) pdf.addPage("a4", "landscape");
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, Math.min(imgHeightMm, A4_HEIGHT_MM));
-    }
-
-    pdf.save(`КП № ${state.formData.kpNumber} от ${state.formData.kpDate}.pdf`);
-  }, [state.formData, state.listsKp]);
 
   const exportHiddenPDF = useCallback(async () => {
     // сохраняем режим редактирования как существующий КП (как было)
@@ -744,10 +628,11 @@ function App() {
         path="/"
         element={
           <Home
-            searchKp={searchKp}
+            // searchKp={searchKp}
             dispatch={dispatch}
             setIsNewKp={setIsNewKp}
-            getEmptyFormData={getEmptyFormData} />}
+            // getEmptyFormData={getEmptyFormData}
+          />}
       />
 
       {/* Страница формы нового КП */}
@@ -791,7 +676,7 @@ function App() {
             updateRowInDb={updateRowInDb}
             addRowOnList={addRowOnList}
             GetPrice={GetPrice}
-            downloadPDF={exportPDF}
+            // downloadPDF={exportPDF}
             downloadSpec={downloadSpec}
             getProductWeightWithMeasure={getProductWeightWithMeasure}
             getDeclination={getDeclination}

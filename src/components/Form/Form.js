@@ -601,7 +601,7 @@ function Form({
         {Array.isArray(listsSummary) && listsSummary.length > 0 && (
           <SavedListsAccordion
             lists={listsSummary}
-            isNewKp={isNewKp}              // прокинем из App
+            // isNewKp={isNewKp}              // прокинем из App
             onDeleteRow={onDeleteRow}      // (listId, rowIndex)
             onUpdateRow={onUpdateRow}      // (listId, rowIndex, updatedRow)
             onAddRowOnList={onAddRowOnList}// (row, listId)
