@@ -10,6 +10,7 @@ import PavelPhoto from '../../images/PavelPhoto.jpg';
 import PeterPhoto from '../../images/PeterPhoto.jpg';
 import SavedListsAccordion from "../SavedListsAccordion/SavedListsAccordion";
 import Switcher from "../Switcher/Switcher";
+import { red } from "@skbkontur/react-ui/cjs/lib/styles/ColorFunctions";
 
 function Form({
   onSubmit,
@@ -628,17 +629,22 @@ function Form({
 
         {/* Кнопки управления */}
         <div className='form__table-button'>
-          <Button
-            icon={<Add />}
-            use="default"
-            onClick={() => {
-              setProductToEdit(null);
-              setShowProductPopup(true);
-            }}
-          >
-            Добавить позицию
-          </Button>
+          <label className="" style={{ display: "grid", "font-size": "12px" }}>
+            <Button
+              icon={<Add />}
+              use="default"
+              onClick={() => {
+                setProductToEdit(null);
+                setShowProductPopup(true);
+                console.log(products);
 
+              }}
+              disabled={(products.length < 7) ? false : true}
+            >
+              Добавить позицию
+            </Button>
+            <span className="form__error" style={((products.length < 7) ? {color: '#ff000000'} : {color: '#d00'})}>Достигнуто максимальное количество продуктов на 1 листе</span>
+          </label>
           <Button
             use="primary"
             onClick={() => {
