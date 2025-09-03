@@ -597,7 +597,7 @@ function Form({
       </div>
 
       {/* Секция: Состав КП (таблица с позициями) */}
-      <div className="form__section">
+      <div className="form__section" style={{ marginBottom: 0 }}>
         <h3 className="form__section-title">Состав КП</h3>
         {Array.isArray(listsSummary) && listsSummary.length > 0 && (
           <SavedListsAccordion
@@ -628,8 +628,9 @@ function Form({
         </div>
 
         {/* Кнопки управления */}
-        <div className='form__table-button'>
-          <label className="" style={{ display: "grid", "font-size": "12px" }}>
+
+        <label className="" style={{ display: "grid", "font-size": "12px" }}>
+          <div className='form__table-button'>
             <Button
               icon={<Add />}
               use="default"
@@ -643,25 +644,27 @@ function Form({
             >
               Добавить позицию
             </Button>
-            <span className="form__error" style={((products.length < 7) ? {color: '#ff000000'} : {color: '#d00'})}>Достигнуто максимальное количество продуктов на 1 листе</span>
-          </label>
-          <Button
-            use="primary"
-            onClick={() => {
-              if (!products || products.length === 0) {
-                alert('Добавьте хотя бы одну позицию перед сохранением листа');
-                return;
-              }
-              if (typeof addList === 'function') {
-                addList(products);
-              }
-              setProducts([]);         // очистим текущий временный лист
-              setProductToEdit(null);  // сброс редактируемого продукта, если был
-            }}
-          >
-            Сохранить лист
-          </Button>
-        </div>
+
+            <Button
+              use="primary"
+              onClick={() => {
+                if (!products || products.length === 0) {
+                  alert('Добавьте хотя бы одну позицию перед сохранением листа');
+                  return;
+                }
+                if (typeof addList === 'function') {
+                  addList(products);
+                }
+                setProducts([]);         // очистим текущий временный лист
+                setProductToEdit(null);  // сброс редактируемого продукта, если был
+              }}
+            >
+              Сохранить лист
+            </Button>
+          </div>
+          <span className="form__error" style={((products.length < 7) ? { color: '#ff000000' } : { color: '#d00', "text-align": "justify" })}>Достигнуто максимальное количество продуктов на одном листе</span>
+        </label>
+
 
         {/* Попап */}
         {showProductPopup && (

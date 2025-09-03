@@ -114,7 +114,7 @@ function SavedListsAccordion({
           </div>
 
           <div className="sla__actions">
-            <Button icon={<Add />} use="default" onClick={() => openAdd(list.id)}>
+            <Button icon={<Add />} use="default" onClick={() => openAdd(list.id)} disabled={(list.rows.length<7) ? false : true}>
               
             </Button>
             <Button icon={<Trash />} use="default" onClick={() => onDeleteList(list.id)}>
