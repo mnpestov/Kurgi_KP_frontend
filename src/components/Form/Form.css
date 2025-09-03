@@ -22,9 +22,9 @@
   margin-bottom: 1.5rem;
 }
 
-.form__section:last-child {
+/* .form__section:last-child {
   margin-bottom: 0;
-}
+} */
 
 .form__input.error {
   border: 1px solid red !important;

@@ -38,7 +38,7 @@ function Kp({
         tableTitlesSelector,
         tableTitleSelector,
         tableSubtitleSelector,
-        footerSelector,
+        lastListSelector,
         listTotalSelector
     } = kpPreviewSelectors
 
@@ -101,7 +101,7 @@ function Kp({
                     </table>
                 </div>
                 <div className={tableSubtitleSelector}>
-                    <div className={footerSelector}>
+                    <div className={lastListSelector}>
                         <div className="list__footnotes">
                             <p className="list__footnote">*В стоимость включены все расходники.</p>
                         </div>
