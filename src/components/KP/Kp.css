@@ -130,6 +130,7 @@
     margin: auto;
     display: grid;
     gap: 1vw;
+    max-width: 864px;
 }
 
 .list__button {
