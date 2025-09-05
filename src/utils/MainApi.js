@@ -2,6 +2,7 @@ class Api {
     constructor({ baseUrl }) {
         this._baseUrl = baseUrl;
     }
+    
     _checkResponse(res) {
         if (res.ok) {
             return res.json();
@@ -101,6 +102,13 @@ class Api {
     }
 
 }
+// const API_BASE =
+//   (process.env.REACT_APP_API_BASE && process.env.REACT_APP_API_BASE.replace(/\/$/, ''))
+//   || (typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api');
+
+// export const MainApi = new Api({
+//   baseUrl: API_BASE,
+// });
 export const MainApi = new Api({
     // baseUrl: 'http://localhost:3000',
     baseUrl: 'https://kurgi-kp-backend.onrender.com',

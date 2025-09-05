@@ -131,6 +131,11 @@
     display: grid;
     gap: 1vw;
     max-width: 864px;
+     grid-template-columns: 1fr 1fr;
+}
+.list__buttons:first-child {
+    grid-template-rows: auto;
+    grid-template-columns: auto;
 }
 
 .list__button {
@@ -186,4 +191,11 @@
     .tabel__line_product-preview {
         font-size: 1.9vw;
     }
+}
+@media (max-width: 660px) {
+.list__buttons {
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: auto;
+}
+
 }
